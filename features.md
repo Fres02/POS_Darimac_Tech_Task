@@ -29,10 +29,10 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 ## Phase 1 — Data layer
 
-- [ ] 6. Database schema: profiles, products, sales, sale_items, daily_reports **[MVP]**
-- [ ] 7. Drizzle migrations checked into git **[MVP]**
-- [ ] 8. RLS policies (role-based row access) **[MVP]**
-- [ ] 9. Seed script (users + products so a fresh clone works) **[MVP]**
+- [x] 6. Database schema: profiles, products, sales, sale_items, daily_reports **[MVP]**
+- [x] 7. Drizzle migrations checked into git **[MVP]**
+- [x] 8. RLS policies (role-based row access) **[MVP]**
+- [x] 9. Seed script (users + products so a fresh clone works) **[MVP]**
 
 ## Phase 2 — Authentication & authorization
 

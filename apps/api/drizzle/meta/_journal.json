@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1784012050207,
+      "tag": "0000_init-schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784012098320,
+      "tag": "0001_add-is-admin-function",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784012212888,
+      "tag": "0002_enable-rls-policies",
+      "breakpoints": true
+    }
+  ]
+}
