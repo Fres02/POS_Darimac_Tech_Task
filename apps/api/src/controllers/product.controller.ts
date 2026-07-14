@@ -3,12 +3,15 @@ import { z } from "zod";
 import { createProductInputSchema, updateProductInputSchema } from "@pos/shared";
 import * as productService from "../services/product.service";
 
-const searchQuerySchema = z.object({ q: z.string().trim().min(1).optional() });
+const searchQuerySchema = z.object({
+  q: z.string().trim().min(1).optional(),
+  active: z.coerce.boolean().optional(),
+});
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
-    const { q } = searchQuerySchema.parse(req.query);
-    const products = await productService.listProducts(q);
+    const { q, active } = searchQuerySchema.parse(req.query);
+    const products = await productService.listProducts(q, active);
     res.json({ products });
   } catch (err) {
     next(err);

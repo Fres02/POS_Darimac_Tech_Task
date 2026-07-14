@@ -4,3 +4,4 @@ export * from "./schemas/profile";
 export * from "./schemas/product";
 export * from "./schemas/sale";
 export * from "./schemas/daily-report";
+export * from "./pricing";

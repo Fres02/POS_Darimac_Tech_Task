@@ -1,4 +1,4 @@
-import { eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, or } from "drizzle-orm";
 import type { CreateProductInput, UpdateProductInput, Product } from "@pos/shared";
 import { HttpError } from "../lib/http-error";
 import { db } from "../db/client";
@@ -18,9 +18,15 @@ function toProduct(row: ProductRow): Product {
   };
 }
 
-export async function listProducts(search?: string): Promise<Product[]> {
+export async function listProducts(search?: string, activeOnly?: boolean): Promise<Product[]> {
+  const searchFilter = search
+    ? or(ilike(products.name, `%${search}%`), ilike(products.sku, `%${search}%`))
+    : undefined;
+  const activeFilter = activeOnly ? eq(products.active, true) : undefined;
+  const where = [searchFilter, activeFilter].filter(Boolean);
+
   const rows = await db.query.products.findMany({
-    where: search ? or(ilike(products.name, `%${search}%`), ilike(products.sku, `%${search}%`)) : undefined,
+    where: where.length ? and(...where) : undefined,
     orderBy: (p, { asc }) => asc(p.name),
   });
   return rows.map(toProduct);

@@ -1,8 +1,11 @@
 import type { Product, CreateProductInput, UpdateProductInput } from "@pos/shared";
 import { apiFetch } from "./api";
 
-export async function fetchProducts(search?: string): Promise<Product[]> {
-  const qs = search ? `?q=${encodeURIComponent(search)}` : "";
+export async function fetchProducts(search?: string, activeOnly?: boolean): Promise<Product[]> {
+  const params = new URLSearchParams();
+  if (search) params.set("q", search);
+  if (activeOnly) params.set("active", "true");
+  const qs = params.toString() ? `?${params.toString()}` : "";
   const { products } = await apiFetch<{ products: Product[] }>(`/api/products${qs}`);
   return products;
 }

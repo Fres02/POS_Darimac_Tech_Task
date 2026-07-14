@@ -55,13 +55,13 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 ## Phase 4 — Sales creation (the core)
 
-- [ ] 23. Product grid on POS screen **[MVP]**
-- [ ] 24. Cart: add / update qty / remove (Zustand) **[MVP]**
-- [ ] 25. Live totals: subtotal, tax, discount, grand total in LKR **[MVP]**
-- [ ] 26. Per-sale discount (amount or %) **[MVP]**
-- [ ] 27. Checkout — persist sale + items in one transaction **[MVP]**
-- [ ] 28. Record cashier + Asia/Colombo timestamp **[MVP]**
-- [ ] 29. Clear cart + invalidate queries on success **[MVP]**
+- [x] 23. Product grid on POS screen **[MVP]**
+- [x] 24. Cart: add / update qty / remove (Zustand) **[MVP]**
+- [x] 25. Live totals: subtotal, tax, discount, grand total in LKR **[MVP]**
+- [x] 26. Per-sale discount (amount or %) **[MVP]**
+- [x] 27. Checkout — persist sale + items in one transaction **[MVP]**
+- [x] 28. Record cashier + Asia/Colombo timestamp **[MVP]**
+- [x] 29. Clear cart + invalidate queries on success **[MVP]**
 - [ ] 30. Per-line-item discount **[+]**
 - [ ] 31. Hold / resume a sale (park an order) **[full]**
 - [ ] 32. Void / cancel a sale before checkout **[+]**
