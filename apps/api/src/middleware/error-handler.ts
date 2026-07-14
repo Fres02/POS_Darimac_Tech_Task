@@ -14,8 +14,10 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     return;
   }
 
-  // Postgres unique_violation — e.g. duplicate product SKU
-  if (typeof err === "object" && err !== null && "code" in err && err.code === "23505") {
+  // Postgres unique_violation — e.g. duplicate product SKU.
+  // Drizzle wraps the real PostgresError (which carries .code) as DrizzleQueryError#cause.
+  const pgCode = (err as { code?: string })?.code ?? (err as { cause?: { code?: string } })?.cause?.code;
+  if (pgCode === "23505") {
     res.status(409).json({ error: "A record with this value already exists" });
     return;
   }

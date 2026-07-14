@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function AdminDashboardPage() {
@@ -7,6 +8,9 @@ export default function AdminDashboardPage() {
     <main>
       <h1>Admin Dashboard</h1>
       <p>Welcome, {user?.fullName}.</p>
+      <p>
+        <Link to="/admin/products">Manage products</Link>
+      </p>
       <button onClick={logout}>Log out</button>
     </main>
   );

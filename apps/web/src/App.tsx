@@ -3,6 +3,7 @@ import { useAuth } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminProductsPage from "./pages/AdminProductsPage";
 import CashierPosPage from "./pages/CashierPosPage";
 
 function RootRedirect() {
@@ -20,6 +21,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/products" element={<AdminProductsPage />} />
       </Route>
 
       <Route element={<ProtectedRoute allowedRoles={["cashier"]} />}>

@@ -1,0 +1,31 @@
+import type { Product, CreateProductInput, UpdateProductInput } from "@pos/shared";
+import { apiFetch } from "./api";
+
+export async function fetchProducts(search?: string): Promise<Product[]> {
+  const qs = search ? `?q=${encodeURIComponent(search)}` : "";
+  const { products } = await apiFetch<{ products: Product[] }>(`/api/products${qs}`);
+  return products;
+}
+
+export async function createProduct(input: CreateProductInput): Promise<Product> {
+  const { product } = await apiFetch<{ product: Product }>("/api/products", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return product;
+}
+
+export async function updateProduct(id: string, input: UpdateProductInput): Promise<Product> {
+  const { product } = await apiFetch<{ product: Product }>(`/api/products/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+  return product;
+}
+
+export async function deactivateProduct(id: string): Promise<Product> {
+  const { product } = await apiFetch<{ product: Product }>(`/api/products/${id}`, {
+    method: "DELETE",
+  });
+  return product;
+}
