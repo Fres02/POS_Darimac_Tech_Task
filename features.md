@@ -25,7 +25,7 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 - [x] 2. Tooling: TypeScript strict, ESLint, Prettier, env handling **[MVP]**
 - [x] 3. Shared Zod schemas + types package (single source of truth) **[MVP]**
 - [x] 4. CI skeleton (lint → typecheck → build) **[MVP]**
-- [ ] 5. `/health` endpoint + logging setup **[MVP]**
+- [x] 5. `/health` endpoint + logging setup **[MVP]**
 
 ## Phase 1 — Data layer
 
