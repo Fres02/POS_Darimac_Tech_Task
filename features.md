@@ -68,9 +68,9 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 ## Phase 5 — Payment & receipt
 
-- [ ] 33. Payment method selection (cash) **[MVP]**
-- [ ] 34. Cash tendered + change calculation **[MVP]**
-- [ ] 35. On-screen / printable receipt **[MVP]**
+- [x] 33. Payment method selection (cash) **[MVP]**
+- [x] 34. Cash tendered + change calculation **[MVP]**
+- [x] 35. On-screen / printable receipt **[MVP]**
 - [ ] 36. Card / digital payment methods **[+]**
 - [ ] 37. Split payment across methods **[full]**
 - [ ] 38. Receipt reprint from sales history **[+]**

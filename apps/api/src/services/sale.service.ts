@@ -29,6 +29,11 @@ export async function createSale(cashierId: string, input: CreateSaleInput): Pro
 
     const totals = computeSaleTotals(lines, input.discount);
 
+    if (input.cashTendered < totals.total) {
+      throw new HttpError(400, "Cash tendered is less than the total due");
+    }
+    const change = Number((input.cashTendered - totals.total).toFixed(2));
+
     const [saleRow] = await tx
       .insert(sales)
       .values({
@@ -37,6 +42,8 @@ export async function createSale(cashierId: string, input: CreateSaleInput): Pro
         tax: totals.tax.toFixed(2),
         discount: totals.discount.toFixed(2),
         total: totals.total.toFixed(2),
+        paymentMethod: input.paymentMethod,
+        cashTendered: input.cashTendered.toFixed(2),
       })
       .returning();
 
@@ -61,6 +68,9 @@ export async function createSale(cashierId: string, input: CreateSaleInput): Pro
       tax: Number(saleRow.tax),
       discount: Number(saleRow.discount),
       total: Number(saleRow.total),
+      paymentMethod: saleRow.paymentMethod,
+      cashTendered: Number(saleRow.cashTendered),
+      change,
       createdAt: saleRow.createdAt.toISOString(),
       items: itemRows.map((row) => ({
         id: row.id,

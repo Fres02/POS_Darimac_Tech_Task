@@ -5,6 +5,8 @@ import { useAuth } from "../context/AuthContext";
 import { useCartStore } from "../store/cart";
 import { fetchProducts } from "../lib/products";
 import { checkout } from "../lib/sales";
+import { formatLkr } from "../lib/format";
+import { Receipt } from "../components/Receipt";
 
 type DiscountType = "none" | "amount" | "percent";
 
@@ -16,6 +18,7 @@ export default function CashierPosPage() {
 
   const [discountType, setDiscountType] = useState<DiscountType>("none");
   const [discountValue, setDiscountValue] = useState("0");
+  const [cashTendered, setCashTendered] = useState("");
   const [lastSale, setLastSale] = useState<Sale | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +35,7 @@ export default function CashierPosPage() {
       clear();
       setDiscountType("none");
       setDiscountValue("0");
+      setCashTendered("");
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (err: Error) => setError(err.message),
@@ -54,11 +58,17 @@ export default function CashierPosPage() {
     discount,
   );
 
+  const cashTenderedNumber = Number(cashTendered);
+  const hasSufficientCash = cashTendered !== "" && cashTenderedNumber >= totals.total;
+  const changeDue = hasSufficientCash ? cashTenderedNumber - totals.total : 0;
+
   function handleCheckout() {
     setLastSale(null);
     checkoutMutation.mutate({
       items: lines.map((l) => ({ productId: l.productId, qty: l.qty })),
       discount,
+      paymentMethod: "cash",
+      cashTendered: cashTenderedNumber,
     });
   }
 
@@ -77,7 +87,7 @@ export default function CashierPosPage() {
           <div>
             {products?.map((product) => (
               <button key={product.id} onClick={() => addProduct(product)}>
-                {product.name} — LKR {product.priceLkr.toFixed(2)}
+                {product.name} — {formatLkr(product.priceLkr)}
               </button>
             ))}
           </div>
@@ -103,7 +113,7 @@ export default function CashierPosPage() {
               {lines.map((line) => (
                 <tr key={line.productId}>
                   <td>{line.name}</td>
-                  <td>{line.unitPrice.toFixed(2)}</td>
+                  <td>{formatLkr(line.unitPrice)}</td>
                   <td>
                     <input
                       type="number"
@@ -112,7 +122,7 @@ export default function CashierPosPage() {
                       onChange={(e) => updateQty(line.productId, Number(e.target.value))}
                     />
                   </td>
-                  <td>{(line.unitPrice * line.qty).toFixed(2)}</td>
+                  <td>{formatLkr(line.unitPrice * line.qty)}</td>
                   <td>
                     <button onClick={() => removeLine(line.productId)}>Remove</button>
                   </td>
@@ -146,33 +156,48 @@ export default function CashierPosPage() {
 
         <dl>
           <dt>Subtotal</dt>
-          <dd>LKR {totals.subtotal.toFixed(2)}</dd>
+          <dd>{formatLkr(totals.subtotal)}</dd>
           <dt>Tax</dt>
-          <dd>LKR {totals.tax.toFixed(2)}</dd>
+          <dd>{formatLkr(totals.tax)}</dd>
           <dt>Discount</dt>
-          <dd>LKR {totals.discount.toFixed(2)}</dd>
+          <dd>{formatLkr(totals.discount)}</dd>
           <dt>Total</dt>
-          <dd>LKR {totals.total.toFixed(2)}</dd>
+          <dd>{formatLkr(totals.total)}</dd>
         </dl>
+
+        <div>
+          <label>
+            Payment method:
+            <select value="cash" disabled>
+              <option value="cash">Cash</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Cash tendered:
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={cashTendered}
+              onChange={(e) => setCashTendered(e.target.value)}
+            />
+          </label>
+        </div>
+        <p>Change due: {formatLkr(changeDue)}</p>
 
         {error && <p role="alert">{error}</p>}
 
         <button
           onClick={handleCheckout}
-          disabled={lines.length === 0 || checkoutMutation.isPending}
+          disabled={lines.length === 0 || !hasSufficientCash || checkoutMutation.isPending}
         >
           {checkoutMutation.isPending ? "Processing..." : "Checkout"}
         </button>
       </section>
 
-      {lastSale && (
-        <section>
-          <h2>Sale complete</h2>
-          <p>
-            Sale {lastSale.id.slice(0, 8)} — total LKR {lastSale.total.toFixed(2)}
-          </p>
-        </section>
-      )}
+      {lastSale && <Receipt sale={lastSale} cashierName={user?.fullName ?? ""} />}
     </main>
   );
 }

@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { moneySchema } from "./common";
 
+export const paymentMethodSchema = z.enum(["cash"]);
+export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
+
 export const discountSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("amount"), value: moneySchema }),
   z.object({ type: z.literal("percent"), value: z.number().min(0).max(100) }),
@@ -16,6 +19,8 @@ export type SaleItemInput = z.infer<typeof saleItemInputSchema>;
 export const createSaleInputSchema = z.object({
   items: z.array(saleItemInputSchema).min(1),
   discount: discountSchema.optional(),
+  paymentMethod: paymentMethodSchema.default("cash"),
+  cashTendered: moneySchema,
 });
 export type CreateSaleInput = z.infer<typeof createSaleInputSchema>;
 
@@ -37,6 +42,9 @@ export const saleSchema = z.object({
   tax: moneySchema,
   discount: moneySchema,
   total: moneySchema,
+  paymentMethod: paymentMethodSchema,
+  cashTendered: moneySchema,
+  change: moneySchema,
   createdAt: z.string().datetime(),
   items: z.array(saleItemSchema),
 });

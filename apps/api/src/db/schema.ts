@@ -23,6 +23,7 @@ export const authUsers = authSchema.table("users", {
 });
 
 export const roleEnum = pgEnum("role", ["admin", "cashier"]);
+export const paymentMethodEnum = pgEnum("payment_method", ["cash"]);
 
 export const profiles = pgTable(
   "profiles",
@@ -80,6 +81,10 @@ export const sales = pgTable(
     tax: numeric("tax", { precision: 10, scale: 2 }).notNull(),
     discount: numeric("discount", { precision: 10, scale: 2 }).notNull().default("0"),
     total: numeric("total", { precision: 10, scale: 2 }).notNull(),
+    paymentMethod: paymentMethodEnum("payment_method").notNull().default("cash"),
+    // nullable: only cash payments carry a tendered amount; future payment
+    // methods (card, etc.) won't populate this column.
+    cashTendered: numeric("cash_tendered", { precision: 10, scale: 2 }),
     // timestamptz: always stored as UTC, converted to Asia/Colombo at query time
     // for "daily" boundaries — never use a timezone-less column here.
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
