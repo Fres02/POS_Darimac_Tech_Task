@@ -11,20 +11,20 @@ demonstrate depth without expanding scope beyond what's maintainable.
 
 ## 1. Tech Stack (reference)
 
-| Layer | Choice |
-|---|---|
-| Frontend | React 19 + Vite + TypeScript, Tailwind CSS, shadcn/ui |
-| Client state | Zustand (cart / UI) |
-| Server state | TanStack Query (caching, invalidation, optimistic updates) |
-| Backend | Node + Express + TypeScript (layered architecture) |
-| Validation | Zod (shared schemas across FE/BE via a `shared` package) |
-| Database | Supabase (PostgreSQL) |
-| ORM / migrations | Drizzle ORM + drizzle-kit |
-| Auth | Supabase Auth (JWT), roles enforced via RLS + API middleware |
-| Email | Resend (daily sales report) |
-| Frontend hosting | Vercel |
-| Backend hosting | Render |
-| CI/CD | GitHub Actions (lint → typecheck → test → deploy) |
+| Layer            | Choice                                                       |
+| ---------------- | ------------------------------------------------------------ |
+| Frontend         | React 19 + Vite + TypeScript, Tailwind CSS, shadcn/ui        |
+| Client state     | Zustand (cart / UI)                                          |
+| Server state     | TanStack Query (caching, invalidation, optimistic updates)   |
+| Backend          | Node + Express + TypeScript (layered architecture)           |
+| Validation       | Zod (shared schemas across FE/BE via a `shared` package)     |
+| Database         | Supabase (PostgreSQL)                                        |
+| ORM / migrations | Drizzle ORM + drizzle-kit                                    |
+| Auth             | Supabase Auth (JWT), roles enforced via RLS + API middleware |
+| Email            | Resend (daily sales report)                                  |
+| Frontend hosting | Vercel                                                       |
+| Backend hosting  | Render                                                       |
+| CI/CD            | GitHub Actions (lint → typecheck → test → deploy)            |
 
 Locale: currency `LKR`, formatting via `Intl.NumberFormat('si-LK')`; timezone
 `Asia/Colombo` for all date boundaries (critical for "daily" report cutoffs).
@@ -33,18 +33,19 @@ Locale: currency `LKR`, formatting via `Intl.NumberFormat('si-LK')`; timezone
 
 ## 2. Roles & Permissions
 
-| Capability | Admin | Cashier |
-|---|:---:|:---:|
-| Log in / log out | ✅ | ✅ |
-| Create a sale | ✅ | ✅ |
-| View own sales | ✅ | ✅ |
-| View all sales (any cashier) | ✅ | ❌ |
-| Manage products (create/edit/deactivate) | ✅ | ❌ |
-| Manage users (invite/assign role) | ✅ | ❌ |
-| View reports / dashboard | ✅ | ❌ |
-| Receive daily sales email | ✅ | ❌ |
+| Capability                               | Admin | Cashier |
+| ---------------------------------------- | :---: | :-----: |
+| Log in / log out                         |  ✅   |   ✅    |
+| Create a sale                            |  ✅   |   ✅    |
+| View own sales                           |  ✅   |   ✅    |
+| View all sales (any cashier)             |  ✅   |   ❌    |
+| Manage products (create/edit/deactivate) |  ✅   |   ❌    |
+| Manage users (invite/assign role)        |  ✅   |   ❌    |
+| View reports / dashboard                 |  ✅   |   ❌    |
+| Receive daily sales email                |  ✅   |   ❌    |
 
 Enforcement is layered (defense in depth):
+
 1. **UI** — role-gated routes and components (usability, not security).
 2. **API middleware** — verifies Supabase JWT and checks role on every protected route.
 3. **Database RLS** — Postgres Row Level Security policies as the final backstop, so a
@@ -55,6 +56,7 @@ Enforcement is layered (defense in depth):
 ## 3. Core Features (MVP — required by the brief)
 
 ### 3.1 Authentication
+
 - [ ] Email + password login via Supabase Auth.
 - [ ] Secure session handling (JWT, httpOnly refresh where applicable).
 - [ ] Logout that clears session and client state.
@@ -63,12 +65,14 @@ Enforcement is layered (defense in depth):
 - [ ] Basic rate limiting on the login endpoint.
 
 ### 3.2 Product Catalog (minimum needed to make sales)
+
 - [ ] Product model: name, SKU/barcode (optional), price (LKR), tax rate, active flag.
 - [ ] Seed data so a fresh clone has products to sell immediately.
 - [ ] Admin CRUD for products; soft-delete (deactivate) rather than hard delete to
       preserve historical sale integrity.
 
 ### 3.3 Sales Creation (POS core)
+
 - [ ] Product grid / search on the POS screen.
 - [ ] Cart: add line item, adjust quantity, remove line item (Zustand).
 - [ ] Live totals: subtotal, tax, discount, grand total — all in LKR.
@@ -79,6 +83,7 @@ Enforcement is layered (defense in depth):
 - [ ] Simple printable / on-screen receipt.
 
 ### 3.4 Daily Sales Report Email
+
 - [ ] Triggered on **Admin login** (per the brief).
 - [ ] Aggregates the current day's sales (Asia/Colombo boundaries): total revenue,
       number of transactions, per-cashier breakdown, top items.
@@ -92,28 +97,34 @@ Enforcement is layered (defense in depth):
 ## 4. Stretch Features (demonstrate depth — build only after MVP is solid)
 
 ### 4.1 Admin Dashboard
+
 - [ ] Today's revenue, transaction count, average basket value.
 - [ ] Sales-over-time chart and top-selling products.
 - [ ] Per-cashier performance view.
 
 ### 4.2 Reporting & Export
+
 - [ ] Date-range sales report with filters.
 - [ ] CSV / PDF export of a report.
 - [ ] Manual "resend today's report" button for the Admin.
 
 ### 4.3 Scheduled Report (in addition to login trigger)
+
 - [ ] End-of-day cron (GitHub Actions or Render cron) that sends the report at a fixed
       time, so the Admin gets it even without logging in.
 
 ### 4.4 User Management
+
 - [ ] Admin invites a cashier and assigns a role.
 - [ ] Deactivate a user without deleting sales history.
 
 ### 4.5 Inventory (light)
+
 - [ ] Optional stock quantity per product, decremented on sale.
 - [ ] Low-stock indicator on the dashboard.
 
 ### 4.6 UX polish
+
 - [ ] Keyboard-first POS flow (barcode/search focus, Enter to add).
 - [ ] Offline-tolerant cart (survives refresh) via persisted Zustand store.
 - [ ] Dark mode.
