@@ -46,8 +46,8 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 ## Phase 3 — Product catalog
 
-- [ ] 17. Product list + search (read) **[MVP]**
-- [ ] 18. Admin product CRUD, soft-delete/deactivate **[MVP]**
+- [x] 17. Product list + search (read) **[MVP]**
+- [x] 18. Admin product CRUD, soft-delete/deactivate **[MVP]**
 - [ ] 19. Categories / product grouping **[+]**
 - [ ] 20. Barcode/SKU field + scan-to-add **[+]**
 - [ ] 21. Product images **[full]**

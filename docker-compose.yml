@@ -8,6 +8,7 @@ services:
     environment:
       PORT: "4000"
       NODE_ENV: development
+      WEB_ORIGIN: "http://localhost:5174"
     volumes:
       - .:/repo:cached
       - root_node_modules:/repo/node_modules
@@ -20,7 +21,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
     ports:
-      - "5173:5173"
+      - "5174:5173"
     environment:
       VITE_API_URL: "http://localhost:4001"
     volumes:
@@ -37,3 +38,4 @@ volumes:
   api_node_modules:
   web_node_modules:
   shared_node_modules:
+
