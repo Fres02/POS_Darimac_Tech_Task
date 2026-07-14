@@ -7,6 +7,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
+  WEB_ORIGIN: z.string().url().default("http://localhost:5173"),
 });
 
 export const env = envSchema.parse(process.env);

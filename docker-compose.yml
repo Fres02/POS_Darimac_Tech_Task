@@ -9,11 +9,11 @@ services:
       PORT: "4000"
       NODE_ENV: development
     volumes:
-      - .:/repo
-      - /repo/node_modules
-      - /repo/apps/api/node_modules
-      - /repo/apps/web/node_modules
-      - /repo/packages/shared/node_modules
+      - .:/repo:cached
+      - root_node_modules:/repo/node_modules
+      - api_node_modules:/repo/apps/api/node_modules
+      - web_node_modules:/repo/apps/web/node_modules
+      - shared_node_modules:/repo/packages/shared/node_modules
 
   web:
     build:
@@ -24,10 +24,16 @@ services:
     environment:
       VITE_API_URL: "http://localhost:4001"
     volumes:
-      - .:/repo
-      - /repo/node_modules
-      - /repo/apps/api/node_modules
-      - /repo/apps/web/node_modules
-      - /repo/packages/shared/node_modules
+      - .:/repo:cached
+      - root_node_modules:/repo/node_modules
+      - api_node_modules:/repo/apps/api/node_modules
+      - web_node_modules:/repo/apps/web/node_modules
+      - shared_node_modules:/repo/packages/shared/node_modules
     depends_on:
       - api
+
+volumes:
+  root_node_modules:
+  api_node_modules:
+  web_node_modules:
+  shared_node_modules:

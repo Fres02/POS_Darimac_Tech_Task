@@ -1,14 +1,10 @@
 import "dotenv/config";
 import postgres from "postgres";
 import { sql } from "drizzle-orm";
-import { createClient } from "@supabase/supabase-js";
 import { env } from "../env";
+import { supabaseAdmin } from "../lib/supabase";
 import { db } from "./client";
 import { profiles, products } from "./schema";
-
-const supabaseAdmin = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
 
 // auth.users isn't exposed through the Data API — a direct connection is the
 // only way to check "does this seed user already exist" before calling admin.createUser.

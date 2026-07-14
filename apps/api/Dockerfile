@@ -1,5 +1,5 @@
 # Build context is the repo root (pnpm workspace) — see docker-compose.yml.
-FROM node:20-alpine
+FROM node:22-alpine
 
 RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
 
