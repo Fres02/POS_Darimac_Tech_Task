@@ -14,6 +14,12 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     return;
   }
 
+  // Postgres unique_violation — e.g. duplicate product SKU
+  if (typeof err === "object" && err !== null && "code" in err && err.code === "23505") {
+    res.status(409).json({ error: "A record with this value already exists" });
+    return;
+  }
+
   logger.error(err);
   res.status(500).json({ error: "Internal server error" });
 };

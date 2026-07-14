@@ -5,6 +5,7 @@ import { env } from "./env";
 import { logger } from "./logger";
 import { authRouter } from "./routes/auth.routes";
 import { meRouter } from "./routes/me.routes";
+import { productRouter } from "./routes/product.routes";
 import { errorHandler } from "./middleware/error-handler";
 
 const app = express();
@@ -23,6 +24,7 @@ app.get("/health", (_req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api", meRouter);
+app.use("/api/products", productRouter);
 
 app.use(errorHandler);
 
