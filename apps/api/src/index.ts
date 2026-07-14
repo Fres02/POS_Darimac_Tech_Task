@@ -1,11 +1,10 @@
 import express from "express";
-import { SHARED_PACKAGE_NAME } from "@pos/shared";
 import { env } from "./env";
 
 const app = express();
 
 app.get("/", (_req, res) => {
-  res.json({ status: "ok", uses: SHARED_PACKAGE_NAME });
+  res.json({ status: "ok" });
 });
 
 app.listen(env.PORT, () => {
