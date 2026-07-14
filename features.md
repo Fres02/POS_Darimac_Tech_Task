@@ -36,11 +36,11 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 ## Phase 2 — Authentication & authorization
 
-- [ ] 10. Email/password login via Supabase Auth **[MVP]**
-- [ ] 11. Session handling + logout **[MVP]**
-- [ ] 12. API auth middleware (JWT verify + role check) **[MVP]**
-- [ ] 13. Route protection + role-based redirect (Admin vs Cashier) **[MVP]**
-- [ ] 14. Login rate limiting **[MVP]**
+- [x] 10. Email/password login via Supabase Auth **[MVP]**
+- [x] 11. Session handling + logout **[MVP]**
+- [x] 12. API auth middleware (JWT verify + role check) **[MVP]**
+- [x] 13. Route protection + role-based redirect (Admin vs Cashier) **[MVP]**
+- [x] 14. Login rate limiting **[MVP]**
 - [ ] 15. Password reset flow **[+]**
 - [ ] 16. Account lockout after repeated failures **[full]**
 
