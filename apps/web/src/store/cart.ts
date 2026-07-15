@@ -1,11 +1,12 @@
 import { create } from "zustand";
-import type { Discount, Product } from "@pos/shared";
+import type { Discount, Product, UnitType } from "@pos/shared";
 
 export type CartLine = {
   productId: string;
   name: string;
   unitPrice: number;
   taxRate: number;
+  unitType: UnitType;
   qty: number;
 };
 
@@ -41,6 +42,7 @@ export const useCartStore = create<CartState>((set) => ({
             name: product.name,
             unitPrice: product.priceLkr,
             taxRate: product.taxRate,
+            unitType: product.unitType,
             qty: 1,
           },
         ],

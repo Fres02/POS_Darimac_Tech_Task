@@ -6,7 +6,7 @@ import { computeSaleTotals, type Discount, type Sale } from "@pos/shared";
 import { useCartStore } from "../store/cart";
 import { fetchProducts } from "../lib/products";
 import { checkout } from "../lib/sales";
-import { formatLkr } from "../lib/format";
+import { formatLkr, formatQty, unitSuffix } from "../lib/format";
 import { Receipt } from "../components/Receipt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,6 +144,7 @@ export default function CashierPosPage() {
                   )}
                   <span className="text-sm text-muted-foreground">
                     {formatLkr(product.priceLkr)}
+                    {unitSuffix(product.unitType)}
                   </span>
                 </button>
               ))}
@@ -177,18 +178,25 @@ export default function CashierPosPage() {
                     <TableCell>
                       <div className="font-medium">{line.name}</div>
                       <div className="text-xs text-muted-foreground">
-                        {formatLkr(line.unitPrice)} each
+                        {formatLkr(line.unitPrice)}
+                        {unitSuffix(line.unitType)}
                       </div>
                     </TableCell>
                     <TableCell>
                       <Input
                         type="number"
-                        min={1}
+                        min={line.unitType === "each" ? 1 : 0.001}
+                        step={line.unitType === "each" ? 1 : 0.001}
                         value={line.qty}
                         onChange={(e) => updateQty(line.productId, Number(e.target.value))}
                         autoComplete="off"
-                        className="w-16"
+                        className="w-20"
                       />
+                      {line.unitType !== "each" && (
+                        <div className="text-xs text-muted-foreground">
+                          {formatQty(line.qty, line.unitType)}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {formatLkr(line.unitPrice * line.qty)}

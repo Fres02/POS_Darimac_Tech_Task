@@ -26,6 +26,7 @@ export const authUsers = authSchema.table("users", {
 
 export const roleEnum = pgEnum("role", ["admin", "cashier"]);
 export const paymentMethodEnum = pgEnum("payment_method", ["cash"]);
+export const unitTypeEnum = pgEnum("unit_type", ["each", "kg", "l"]);
 
 export const profiles = pgTable(
   "profiles",
@@ -54,6 +55,9 @@ export const products = pgTable(
     sku: text("sku").unique(),
     priceLkr: numeric("price_lkr", { precision: 10, scale: 2 }).notNull(),
     taxRate: numeric("tax_rate", { precision: 4, scale: 3 }).notNull().default("0"),
+    // Price is always per one unit of this: a whole item ("each"), or per kg/litre
+    // for weighted/volume goods — in which case cart qty may be fractional.
+    unitType: unitTypeEnum("unit_type").notNull().default("each"),
     active: boolean("active").notNull().default(true),
     stockQty: integer("stock_qty"),
   },
@@ -119,7 +123,9 @@ export const saleItems = pgTable(
       .references(() => products.id),
     nameSnapshot: text("name_snapshot").notNull(),
     unitPriceSnapshot: numeric("unit_price_snapshot", { precision: 10, scale: 2 }).notNull(),
-    qty: integer("qty").notNull(),
+    unitTypeSnapshot: unitTypeEnum("unit_type_snapshot").notNull().default("each"),
+    // numeric, not integer: weighted/volume items (kg, l) can have fractional qty.
+    qty: numeric("qty", { precision: 10, scale: 3 }).notNull(),
     lineTotal: numeric("line_total", { precision: 10, scale: 2 }).notNull(),
   },
   (table) => [

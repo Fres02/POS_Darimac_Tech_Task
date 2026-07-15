@@ -29,6 +29,20 @@
       "when": 1784038367829,
       "tag": "0003_add-payment-fields",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784116308726,
+      "tag": "0004_add-unit-type-and-decimal-qty",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784118218233,
+      "tag": "0005_add-unit-type-snapshot",
+      "breakpoints": true
     }
   ]
 }

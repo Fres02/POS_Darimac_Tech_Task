@@ -38,7 +38,7 @@ export async function computeDailyTotals(reportDateColombo: string): Promise<Dai
     .select({
       productId: saleItems.productId,
       name: sql<string>`max(${saleItems.nameSnapshot})`,
-      qtySold: sql<number>`coalesce(sum(${saleItems.qty}), 0)::int`,
+      qtySold: sql<string>`coalesce(sum(${saleItems.qty}), 0)`,
       revenue: sql<string>`coalesce(sum(${saleItems.lineTotal}), 0)`,
     })
     .from(saleItems)

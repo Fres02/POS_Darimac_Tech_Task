@@ -1,6 +1,6 @@
 import { Printer } from "lucide-react";
 import type { Sale } from "@pos/shared";
-import { formatColomboDateTime, formatLkr } from "../lib/format";
+import { formatColomboDateTime, formatLkr, formatQty, unitSuffix } from "../lib/format";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -40,8 +40,11 @@ export function Receipt({ sale }: { sale: Sale }) {
           {sale.items.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.nameSnapshot}</TableCell>
-              <TableCell className="text-right">{item.qty}</TableCell>
-              <TableCell className="text-right">{formatLkr(item.unitPriceSnapshot)}</TableCell>
+              <TableCell className="text-right">{formatQty(item.qty, item.unitTypeSnapshot)}</TableCell>
+              <TableCell className="text-right">
+                {formatLkr(item.unitPriceSnapshot)}
+                {unitSuffix(item.unitTypeSnapshot)}
+              </TableCell>
               <TableCell className="text-right">{formatLkr(item.lineTotal)}</TableCell>
             </TableRow>
           ))}

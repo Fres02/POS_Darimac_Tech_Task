@@ -22,12 +22,17 @@ export async function createSale(
       if (!product.active) {
         throw new HttpError(400, `Product "${product.name}" is no longer available`);
       }
+      if (product.unitType === "each" && !Number.isInteger(item.qty)) {
+        throw new HttpError(400, `"${product.name}" is sold per item — quantity must be a whole number`);
+      }
+      const roundedQty = Math.round(item.qty * 1000) / 1000;
       return {
         productId: product.id,
         nameSnapshot: product.name,
         unitPriceSnapshot: Number(product.priceLkr),
+        unitTypeSnapshot: product.unitType,
         taxRate: Number(product.taxRate),
-        qty: item.qty,
+        qty: roundedQty,
       };
     });
 
@@ -59,7 +64,8 @@ export async function createSale(
           productId: line.productId,
           nameSnapshot: line.nameSnapshot,
           unitPriceSnapshot: line.unitPriceSnapshot.toFixed(2),
-          qty: line.qty,
+          unitTypeSnapshot: line.unitTypeSnapshot,
+          qty: line.qty.toFixed(3),
           lineTotal: (line.unitPriceSnapshot * line.qty).toFixed(2),
         })),
       )
@@ -83,7 +89,8 @@ export async function createSale(
         productId: row.productId,
         nameSnapshot: row.nameSnapshot,
         unitPriceSnapshot: Number(row.unitPriceSnapshot),
-        qty: row.qty,
+        unitTypeSnapshot: row.unitTypeSnapshot,
+        qty: Number(row.qty),
         lineTotal: Number(row.lineTotal),
       })),
     };

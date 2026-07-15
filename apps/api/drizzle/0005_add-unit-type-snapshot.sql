@@ -1,0 +1,1 @@
+ALTER TABLE "sale_items" ADD COLUMN "unit_type_snapshot" "unit_type" DEFAULT 'each' NOT NULL;

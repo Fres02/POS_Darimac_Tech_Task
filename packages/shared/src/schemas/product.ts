@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { moneySchema } from "./common";
+import { moneySchema, unitTypeSchema } from "./common";
 
 export const productSchema = z.object({
   id: z.string().uuid(),
@@ -7,6 +7,7 @@ export const productSchema = z.object({
   sku: z.string().min(1).optional(),
   priceLkr: moneySchema,
   taxRate: z.number().min(0).max(1),
+  unitType: unitTypeSchema,
   active: z.boolean(),
   stockQty: z.number().int().nonnegative().optional(),
 });

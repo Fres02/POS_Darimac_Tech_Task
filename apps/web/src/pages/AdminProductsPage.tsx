@@ -2,9 +2,9 @@ import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Search, Pencil, Ban, Plus } from "lucide-react";
-import type { Product } from "@pos/shared";
+import type { Product, UnitType } from "@pos/shared";
 import { createProduct, deactivateProduct, fetchProducts, updateProduct } from "../lib/products";
-import { formatLkr } from "../lib/format";
+import { formatLkr, unitLabel, unitSuffix } from "../lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,16 +18,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ProductFormState = {
   name: string;
   sku: string;
   priceLkr: string;
   taxRate: string;
+  unitType: UnitType;
   stockQty: string;
 };
 
-const EMPTY_FORM: ProductFormState = { name: "", sku: "", priceLkr: "", taxRate: "0", stockQty: "" };
+const EMPTY_FORM: ProductFormState = {
+  name: "",
+  sku: "",
+  priceLkr: "",
+  taxRate: "0",
+  unitType: "each",
+  stockQty: "",
+};
 
 function toInput(form: ProductFormState) {
   return {
@@ -35,9 +50,33 @@ function toInput(form: ProductFormState) {
     sku: form.sku.trim() || undefined,
     priceLkr: Number(form.priceLkr),
     taxRate: Number(form.taxRate),
+    unitType: form.unitType,
     active: true,
     stockQty: form.stockQty.trim() ? Number(form.stockQty) : undefined,
   };
+}
+
+function UnitSelect({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: UnitType;
+  onChange: (value: UnitType) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <Select value={value} onValueChange={(v) => onChange(v as UnitType)} disabled={disabled}>
+      <SelectTrigger className="w-28">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="each">Each</SelectItem>
+        <SelectItem value="kg">Kilogram</SelectItem>
+        <SelectItem value="l">Litre</SelectItem>
+      </SelectContent>
+    </Select>
+  );
 }
 
 export default function AdminProductsPage() {
@@ -98,6 +137,7 @@ export default function AdminProductsPage() {
       sku: product.sku ?? "",
       priceLkr: String(product.priceLkr),
       taxRate: String(product.taxRate),
+      unitType: product.unitType,
       stockQty: product.stockQty !== undefined ? String(product.stockQty) : "",
     });
   }
@@ -139,6 +179,7 @@ export default function AdminProductsPage() {
                   <TableHead>Name</TableHead>
                   <TableHead>SKU</TableHead>
                   <TableHead>Price</TableHead>
+                  <TableHead>Unit</TableHead>
                   <TableHead>Tax</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead>Status</TableHead>
@@ -149,7 +190,7 @@ export default function AdminProductsPage() {
                 {products?.map((product) =>
                   editingId === product.id ? (
                     <TableRow key={product.id}>
-                      <TableCell colSpan={7}>
+                      <TableCell colSpan={8}>
                         <form
                           onSubmit={handleEditSave}
                           autoComplete="off"
@@ -179,6 +220,10 @@ export default function AdminProductsPage() {
                             autoComplete="off"
                             className="w-24"
                             required
+                          />
+                          <UnitSelect
+                            value={editForm.unitType}
+                            onChange={(unitType) => setEditForm({ ...editForm, unitType })}
                           />
                           <Input
                             type="number"
@@ -218,7 +263,13 @@ export default function AdminProductsPage() {
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell className="text-muted-foreground">{product.sku ?? "—"}</TableCell>
-                      <TableCell>{formatLkr(product.priceLkr)}</TableCell>
+                      <TableCell>
+                        {formatLkr(product.priceLkr)}
+                        {unitSuffix(product.unitType)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{unitLabel(product.unitType)}</Badge>
+                      </TableCell>
                       <TableCell>{(product.taxRate * 100).toFixed(1)}%</TableCell>
                       <TableCell>{product.stockQty ?? "—"}</TableCell>
                       <TableCell>
@@ -258,7 +309,7 @@ export default function AdminProductsPage() {
           <form
             onSubmit={handleCreate}
             autoComplete="off"
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6"
           >
             <div className="flex flex-col gap-2">
               <Label>Name</Label>
@@ -289,6 +340,13 @@ export default function AdminProductsPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
+              <Label>Unit</Label>
+              <UnitSelect
+                value={createForm.unitType}
+                onChange={(unitType) => setCreateForm({ ...createForm, unitType })}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
               <Label>Tax rate (0-1)</Label>
               <Input
                 type="number"
@@ -310,7 +368,7 @@ export default function AdminProductsPage() {
                 autoComplete="off"
               />
             </div>
-            <Button type="submit" disabled={createMutation.isPending} className="sm:col-span-2 lg:col-span-5">
+            <Button type="submit" disabled={createMutation.isPending} className="sm:col-span-2 lg:col-span-6">
               <Plus /> Add product
             </Button>
           </form>

@@ -12,7 +12,7 @@ export type CashierBreakdown = z.infer<typeof cashierBreakdownSchema>;
 export const topItemSchema = z.object({
   productId: z.string().uuid(),
   name: z.string(),
-  qtySold: z.number().int().nonnegative(),
+  qtySold: z.number().nonnegative(),
   revenue: moneySchema,
 });
 export type TopItem = z.infer<typeof topItemSchema>;

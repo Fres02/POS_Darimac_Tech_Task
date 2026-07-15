@@ -13,6 +13,7 @@ function toProduct(row: ProductRow): Product {
     sku: row.sku ?? undefined,
     priceLkr: Number(row.priceLkr),
     taxRate: Number(row.taxRate),
+    unitType: row.unitType,
     active: row.active,
     stockQty: row.stockQty ?? undefined,
   };
@@ -40,6 +41,7 @@ export async function createProduct(input: CreateProductInput): Promise<Product>
       sku: input.sku,
       priceLkr: input.priceLkr.toFixed(2),
       taxRate: input.taxRate.toFixed(3),
+      unitType: input.unitType,
       active: input.active,
       stockQty: input.stockQty,
     })
@@ -53,6 +55,7 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
   if (input.sku !== undefined) values.sku = input.sku;
   if (input.priceLkr !== undefined) values.priceLkr = input.priceLkr.toFixed(2);
   if (input.taxRate !== undefined) values.taxRate = input.taxRate.toFixed(3);
+  if (input.unitType !== undefined) values.unitType = input.unitType;
   if (input.active !== undefined) values.active = input.active;
   if (input.stockQty !== undefined) values.stockQty = input.stockQty;
 
