@@ -8,3 +8,14 @@ export const profileSchema = z.object({
   active: z.boolean(),
 });
 export type Profile = z.infer<typeof profileSchema>;
+
+export const userSchema = profileSchema.extend({ email: z.string().email() });
+export type User = z.infer<typeof userSchema>;
+
+export const createUserInputSchema = z.object({
+  fullName: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
+  role: roleSchema,
+});
+export type CreateUserInput = z.infer<typeof createUserInputSchema>;

@@ -17,9 +17,11 @@ import { sql } from "drizzle-orm";
 
 const authSchema = pgSchema("auth");
 
-// Supabase-managed table — referenced here only so `profiles.id` can carry a real FK.
+// Supabase-managed table — referenced here only so `profiles.id` can carry a real FK,
+// and so `email` can be read alongside profiles. We never create/alter this table.
 export const authUsers = authSchema.table("users", {
   id: uuid("id").primaryKey(),
+  email: text("email"),
 });
 
 export const roleEnum = pgEnum("role", ["admin", "cashier"]);

@@ -19,6 +19,7 @@ const ADMIN_NAV = [
   { to: "/admin", label: "Dashboard" },
   { to: "/admin/products", label: "Products" },
   { to: "/sales", label: "Sales" },
+  { to: "/admin/users", label: "Users" },
 ];
 
 const CASHIER_NAV = [

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2, ShoppingCart, PackageSearch } from "lucide-react";
+import { Trash2, ShoppingCart, PackageSearch, Search } from "lucide-react";
 import { computeSaleTotals, type Discount, type Sale } from "@pos/shared";
 import { useCartStore } from "../store/cart";
 import { fetchProducts } from "../lib/products";
@@ -40,10 +40,11 @@ export default function CashierPosPage() {
   const [discountValue, setDiscountValue] = useState("0");
   const [cashTendered, setCashTendered] = useState("");
   const [lastSale, setLastSale] = useState<Sale | null>(null);
+  const [search, setSearch] = useState("");
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products", "pos"],
-    queryFn: () => fetchProducts(undefined, true),
+    queryKey: ["products", "pos", search],
+    queryFn: () => fetchProducts(search || undefined, true),
   });
 
   const checkoutMutation = useMutation({
@@ -81,6 +82,17 @@ export default function CashierPosPage() {
   const hasSufficientCash = cashTendered !== "" && cashTenderedNumber >= totals.total;
   const changeDue = hasSufficientCash ? cashTenderedNumber - totals.total : 0;
 
+  function handleSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    // Barcode scanners submit with Enter — if the code matches exactly one
+    // product, add it straight to the cart instead of requiring a click.
+    if (products && products.length === 1) {
+      addProduct(products[0]);
+      setSearch("");
+    }
+  }
+
   function handleCheckout() {
     setLastSale(null);
     checkoutMutation.mutate({
@@ -99,9 +111,24 @@ export default function CashierPosPage() {
             <PackageSearch className="size-5" /> Products
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
+          <div className="relative max-w-sm">
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search by name or code..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              className="pl-9"
+              autoFocus
+            />
+          </div>
+
           {isLoading ? (
             <p className="text-muted-foreground">Loading products...</p>
+          ) : products && products.length === 0 ? (
+            <p className="text-muted-foreground">No products match "{search}".</p>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
               {products?.map((product) => (
@@ -111,6 +138,9 @@ export default function CashierPosPage() {
                   className="flex flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/40 active:scale-[0.98]"
                 >
                   <span className="font-medium">{product.name}</span>
+                  {product.sku && (
+                    <span className="text-xs text-muted-foreground">{product.sku}</span>
+                  )}
                   <span className="text-sm text-muted-foreground">
                     {formatLkr(product.priceLkr)}
                   </span>

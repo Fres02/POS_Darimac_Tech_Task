@@ -1,7 +1,11 @@
 import type { CSSProperties } from "react";
 import type { DailyReportTotals } from "@pos/shared";
 
-const currencyFormatter = new Intl.NumberFormat("si-LK", { style: "currency", currency: "LKR" });
+const currencyFormatter = new Intl.NumberFormat("en-LK", {
+  style: "currency",
+  currency: "LKR",
+  currencyDisplay: "code",
+});
 function money(amount: number): string {
   return currencyFormatter.format(amount);
 }

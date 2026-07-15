@@ -1,4 +1,8 @@
-const currencyFormatter = new Intl.NumberFormat("si-LK", { style: "currency", currency: "LKR" });
+const currencyFormatter = new Intl.NumberFormat("en-LK", {
+  style: "currency",
+  currency: "LKR",
+  currencyDisplay: "code",
+});
 const dateTimeFormatter = new Intl.DateTimeFormat("en-LK", {
   timeZone: "Asia/Colombo",
   dateStyle: "medium",

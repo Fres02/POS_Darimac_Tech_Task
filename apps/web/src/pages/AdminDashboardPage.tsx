@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Package, Receipt, ArrowRight } from "lucide-react";
+import { Package, Receipt, Users, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
@@ -16,6 +16,12 @@ const TILES = [
     title: "Sales",
     description: "Browse every sale made across all cashiers.",
   },
+  {
+    to: "/admin/users",
+    icon: Users,
+    title: "Users",
+    description: "Add cashiers and admins, and review the team.",
+  },
 ];
 
 export default function AdminDashboardPage() {
@@ -28,7 +34,7 @@ export default function AdminDashboardPage() {
         <p className="text-muted-foreground">Here's what you can manage today.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {TILES.map((tile) => (
           <Link key={tile.to} to={tile.to}>
             <Card className="h-full transition-colors hover:border-primary/50 hover:bg-accent/40">

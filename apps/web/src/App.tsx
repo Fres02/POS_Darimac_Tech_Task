@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminProductsPage from "./pages/AdminProductsPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
 import CashierPosPage from "./pages/CashierPosPage";
 import SalesHistoryPage from "./pages/SalesHistoryPage";
 import SaleDetailPage from "./pages/SaleDetailPage";
@@ -24,6 +25,7 @@ export default function App() {
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/products" element={<AdminProductsPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
       </Route>
 
       <Route element={<ProtectedRoute allowedRoles={["cashier"]} />}>
