@@ -51,7 +51,7 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 - [ ] 19. Categories / product grouping **[+]**
 - [ ] 20. Barcode/SKU field + scan-to-add **[+]**
 - [ ] 21. Product images **[full]**
-- [ ] 22. Unit types / weighted items (per kg) **[full]**
+- [x] 22. Unit types / weighted items (per kg) **[full]**
 
 ## Phase 4 — Sales creation (the core)
 
@@ -91,8 +91,8 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 - [x] 47. Admin: view all sales **[MVP]**
 - [x] 48. Sale detail view **[MVP]**
 - [ ] 49. Date-range filtering **[+]**
-- [ ] 50. Admin dashboard: today's revenue, txn count, avg basket **[+]**
-- [ ] 51. Charts: sales over time, top products **[+]**
+- [x] 50. Admin dashboard: today's revenue, txn count, avg basket **[+]**
+- [x] 51. Charts: sales over time, top products **[+]**
 - [ ] 52. Per-cashier performance view **[+]**
 - [ ] 53. CSV / PDF export **[+]**
 
@@ -120,9 +120,9 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 _(Do the first pass right after Phase 5, not last.)_
 
-- [ ] 65. Deploy frontend → Vercel, backend → Render **[MVP]**
+- [x] 65. Deploy frontend → Vercel, backend → Render **[MVP]**
 - [ ] 66. Full CI/CD pipeline with deploy + PR previews **[MVP]**
-- [ ] 67. Keep-warm cron (Render sleep + Supabase 7-day pause) **[MVP]**
+- [x] 67. Keep-warm cron (Render sleep + Supabase 7-day pause) **[MVP]**
 - [ ] 68. Error tracking / monitoring **[+]**
 
 ## Phase 12 — Polish & quality
@@ -132,7 +132,7 @@ _(Do the first pass right after Phase 5, not last.)_
 - [ ] 71. README: architecture diagram + tech-decision table **[MVP]**
 - [ ] 72. Keyboard-first POS flow **[+]**
 - [ ] 73. Persisted cart (survives refresh) **[+]**
-- [ ] 74. Dark mode + responsive tablet layout **[+]**
+- [x] 74. Dark mode + responsive tablet layout **[+]**
 - [ ] 75. Loading / error / empty states throughout **[MVP]**
 
 ---
