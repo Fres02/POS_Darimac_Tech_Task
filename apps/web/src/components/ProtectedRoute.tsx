@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import type { Role } from "@pos/shared";
 import { useAuth } from "../context/AuthContext";
+import { AppShell } from "./layout/AppShell";
 
 export function ProtectedRoute({ allowedRoles }: { allowedRoles?: Role[] }) {
   const { user, loading } = useAuth();
@@ -11,5 +12,9 @@ export function ProtectedRoute({ allowedRoles }: { allowedRoles?: Role[] }) {
     return <Navigate to={user.role === "admin" ? "/admin" : "/pos"} replace />;
   }
 
-  return <Outlet />;
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
 }

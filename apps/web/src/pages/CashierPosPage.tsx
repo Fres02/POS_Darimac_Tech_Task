@@ -1,18 +1,37 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Trash2, ShoppingCart, PackageSearch } from "lucide-react";
 import { computeSaleTotals, type Discount, type Sale } from "@pos/shared";
-import { useAuth } from "../context/AuthContext";
 import { useCartStore } from "../store/cart";
 import { fetchProducts } from "../lib/products";
 import { checkout } from "../lib/sales";
 import { formatLkr } from "../lib/format";
 import { Receipt } from "../components/Receipt";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type DiscountType = "none" | "amount" | "percent";
 
 export default function CashierPosPage() {
-  const { user, logout } = useAuth();
   const queryClient = useQueryClient();
   const { lines, discount, addProduct, updateQty, removeLine, setDiscount, clear } =
     useCartStore();
@@ -21,7 +40,6 @@ export default function CashierPosPage() {
   const [discountValue, setDiscountValue] = useState("0");
   const [cashTendered, setCashTendered] = useState("");
   const [lastSale, setLastSale] = useState<Sale | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products", "pos"],
@@ -32,14 +50,14 @@ export default function CashierPosPage() {
     mutationFn: checkout,
     onSuccess: (sale) => {
       setLastSale(sale);
-      setError(null);
+      toast.success(`Sale complete — ${formatLkr(sale.total)}`);
       clear();
       setDiscountType("none");
       setDiscountValue("0");
       setCashTendered("");
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
-    onError: (err: Error) => setError(err.message),
+    onError: (err: Error) => toast.error(err.message),
   });
 
   function applyDiscount(type: DiscountType, value: string) {
@@ -74,132 +92,183 @@ export default function CashierPosPage() {
   }
 
   return (
-    <main>
-      <h1>POS</h1>
-      <p>
-        Welcome, {user?.fullName}. <Link to="/sales">My sales</Link>{" "}
-        <button onClick={logout}>Log out</button>
-      </p>
-
-      <section>
-        <h2>Products</h2>
-        {isLoading ? (
-          <p>Loading products...</p>
-        ) : (
-          <div>
-            {products?.map((product) => (
-              <button key={product.id} onClick={() => addProduct(product)}>
-                {product.name} — {formatLkr(product.priceLkr)}
-              </button>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h2>Cart</h2>
-        {lines.length === 0 ? (
-          <p>Cart is empty.</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Unit price</th>
-                <th>Qty</th>
-                <th>Line total</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {lines.map((line) => (
-                <tr key={line.productId}>
-                  <td>{line.name}</td>
-                  <td>{formatLkr(line.unitPrice)}</td>
-                  <td>
-                    <input
-                      type="number"
-                      min={1}
-                      value={line.qty}
-                      onChange={(e) => updateQty(line.productId, Number(e.target.value))}
-                    />
-                  </td>
-                  <td>{formatLkr(line.unitPrice * line.qty)}</td>
-                  <td>
-                    <button onClick={() => removeLine(line.productId)}>Remove</button>
-                  </td>
-                </tr>
+    <div className="grid gap-6 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <PackageSearch className="size-5" /> Products
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <p className="text-muted-foreground">Loading products...</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+              {products?.map((product) => (
+                <button
+                  key={product.id}
+                  onClick={() => addProduct(product)}
+                  className="flex flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/40 active:scale-[0.98]"
+                >
+                  <span className="font-medium">{product.name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {formatLkr(product.priceLkr)}
+                  </span>
+                </button>
               ))}
-            </tbody>
-          </table>
-        )}
-
-        <div>
-          <label>
-            Discount:
-            <select
-              value={discountType}
-              onChange={(e) => applyDiscount(e.target.value as DiscountType, discountValue)}
-            >
-              <option value="none">None</option>
-              <option value="amount">Amount (LKR)</option>
-              <option value="percent">Percent (%)</option>
-            </select>
-          </label>
-          {discountType !== "none" && (
-            <input
-              type="number"
-              min={0}
-              value={discountValue}
-              onChange={(e) => applyDiscount(discountType, e.target.value)}
-            />
+            </div>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
-        <dl>
-          <dt>Subtotal</dt>
-          <dd>{formatLkr(totals.subtotal)}</dd>
-          <dt>Tax</dt>
-          <dd>{formatLkr(totals.tax)}</dd>
-          <dt>Discount</dt>
-          <dd>{formatLkr(totals.discount)}</dd>
-          <dt>Total</dt>
-          <dd>{formatLkr(totals.total)}</dd>
-        </dl>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShoppingCart className="size-5" /> Cart
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {lines.length === 0 ? (
+            <p className="text-muted-foreground">Cart is empty. Tap a product to add it.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Item</TableHead>
+                  <TableHead>Qty</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {lines.map((line) => (
+                  <TableRow key={line.productId}>
+                    <TableCell>
+                      <div className="font-medium">{line.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatLkr(line.unitPrice)} each
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={line.qty}
+                        onChange={(e) => updateQty(line.productId, Number(e.target.value))}
+                        className="w-16"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatLkr(line.unitPrice * line.qty)}
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" onClick={() => removeLine(line.productId)}>
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
-        <div>
-          <label>
-            Payment method:
-            <select value="cash" disabled>
-              <option value="cash">Cash</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>
-            Cash tendered:
-            <input
+          <Separator />
+
+          <div className="flex flex-col gap-2">
+            <Label>Discount</Label>
+            <div className="flex gap-2">
+              <Select
+                value={discountType}
+                onValueChange={(value) => applyDiscount(value as DiscountType, discountValue)}
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="amount">Amount (LKR)</SelectItem>
+                  <SelectItem value="percent">Percent (%)</SelectItem>
+                </SelectContent>
+              </Select>
+              {discountType !== "none" && (
+                <Input
+                  type="number"
+                  min={0}
+                  value={discountValue}
+                  onChange={(e) => applyDiscount(discountType, e.target.value)}
+                />
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          <dl className="flex flex-col gap-1 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Subtotal</dt>
+              <dd>{formatLkr(totals.subtotal)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Tax</dt>
+              <dd>{formatLkr(totals.tax)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Discount</dt>
+              <dd>-{formatLkr(totals.discount)}</dd>
+            </div>
+            <div className="flex justify-between text-base font-semibold">
+              <dt>Total</dt>
+              <dd>{formatLkr(totals.total)}</dd>
+            </div>
+          </dl>
+
+          <Separator />
+
+          <div className="flex flex-col gap-2">
+            <Label>Payment method</Label>
+            <Select value="cash" disabled>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cash">Cash</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label>Cash tendered</Label>
+            <Input
               type="number"
               min={0}
               step="0.01"
               value={cashTendered}
               onChange={(e) => setCashTendered(e.target.value)}
             />
-          </label>
-        </div>
-        <p>Change due: {formatLkr(changeDue)}</p>
+          </div>
 
-        {error && <p role="alert">{error}</p>}
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Change due</span>
+            <span className="font-medium">{formatLkr(changeDue)}</span>
+          </div>
 
-        <button
-          onClick={handleCheckout}
-          disabled={lines.length === 0 || !hasSufficientCash || checkoutMutation.isPending}
-        >
-          {checkoutMutation.isPending ? "Processing..." : "Checkout"}
-        </button>
-      </section>
+          <Button
+            size="lg"
+            onClick={handleCheckout}
+            disabled={lines.length === 0 || !hasSufficientCash || checkoutMutation.isPending}
+          >
+            {checkoutMutation.isPending ? "Processing..." : "Checkout"}
+          </Button>
+        </CardContent>
+      </Card>
 
-      {lastSale && <Receipt sale={lastSale} />}
-    </main>
+      {lastSale && (
+        <Card className="lg:col-span-3">
+          <CardContent className="pt-6">
+            <Receipt sale={lastSale} />
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
