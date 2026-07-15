@@ -12,6 +12,7 @@ async function getUserRow(id: string) {
       fullName: profiles.fullName,
       role: profiles.role,
       active: profiles.active,
+      locked: profiles.locked,
       email: authUsers.email,
     })
     .from(profiles)
@@ -27,6 +28,7 @@ export async function listUsers(): Promise<User[]> {
       fullName: profiles.fullName,
       role: profiles.role,
       active: profiles.active,
+      locked: profiles.locked,
       email: authUsers.email,
     })
     .from(profiles)
@@ -55,6 +57,7 @@ export async function createUser(input: CreateUserInput): Promise<User> {
     fullName: profile.fullName,
     role: profile.role,
     active: profile.active,
+    locked: profile.locked,
     email: input.email,
   };
 }
@@ -93,6 +96,12 @@ export async function updateUser(
     .set({
       ...(input.role !== undefined && { role: input.role }),
       ...(input.active !== undefined && { active: input.active }),
+      // Unlocking also clears the failed-attempt counter, so the account
+      // doesn't start back at the lockout threshold on its next bad attempt.
+      ...(input.locked !== undefined && {
+        locked: input.locked,
+        ...(!input.locked && { failedLoginAttempts: 0 }),
+      }),
     })
     .where(eq(profiles.id, targetId));
 

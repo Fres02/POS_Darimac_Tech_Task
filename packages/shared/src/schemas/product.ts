@@ -10,6 +10,7 @@ export const productSchema = z.object({
   unitType: unitTypeSchema,
   active: z.boolean(),
   stockQty: z.number().int().nonnegative().optional(),
+  category: z.string().min(1).optional(),
 });
 export type Product = z.infer<typeof productSchema>;
 

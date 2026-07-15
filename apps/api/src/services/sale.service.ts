@@ -33,6 +33,7 @@ export async function createSale(
         unitTypeSnapshot: product.unitType,
         taxRate: Number(product.taxRate),
         qty: roundedQty,
+        discount: item.discount,
       };
     });
 
@@ -59,7 +60,7 @@ export async function createSale(
     const itemRows = await tx
       .insert(saleItems)
       .values(
-        lines.map((line) => ({
+        lines.map((line, i) => ({
           saleId: saleRow.id,
           productId: line.productId,
           nameSnapshot: line.nameSnapshot,
@@ -67,6 +68,7 @@ export async function createSale(
           unitTypeSnapshot: line.unitTypeSnapshot,
           qty: line.qty.toFixed(3),
           lineTotal: (line.unitPriceSnapshot * line.qty).toFixed(2),
+          lineDiscount: totals.lines[i].lineDiscount.toFixed(2),
         })),
       )
       .returning();
@@ -92,6 +94,7 @@ export async function createSale(
         unitTypeSnapshot: row.unitTypeSnapshot,
         qty: Number(row.qty),
         lineTotal: Number(row.lineTotal),
+        lineDiscount: Number(row.lineDiscount),
       })),
     };
   });

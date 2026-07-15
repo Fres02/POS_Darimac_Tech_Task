@@ -66,16 +66,7 @@ export async function computeDailyTotals(reportDateColombo: string): Promise<Dai
   };
 }
 
-// Idempotency: if a daily_reports row already exists for this date, the
-// email has already gone out today — skip silently. The row is only
-// inserted after a successful send, so a prior failure is retried on the
-// next admin login rather than being permanently skipped for the day.
-export async function ensureDailyReportSent(reportDateColombo: string, adminEmail: string) {
-  const existing = await db.query.dailyReports.findFirst({
-    where: eq(dailyReports.reportDate, reportDateColombo),
-  });
-  if (existing) return;
-
+async function sendReportEmail(reportDateColombo: string, adminEmail: string) {
   const totals = await computeDailyTotals(reportDateColombo);
   const html = await render(<DailyReportEmail reportDate={reportDateColombo} totals={totals} />);
 
@@ -89,10 +80,43 @@ export async function ensureDailyReportSent(reportDateColombo: string, adminEmai
     throw new Error(`Resend failed: ${error.message}`);
   }
 
+  return totals;
+}
+
+// Idempotency: if a daily_reports row already exists for this date, the
+// email has already gone out today — skip silently. The row is only
+// inserted after a successful send, so a prior failure is retried on the
+// next admin login rather than being permanently skipped for the day.
+export async function ensureDailyReportSent(reportDateColombo: string, adminEmail: string) {
+  const existing = await db.query.dailyReports.findFirst({
+    where: eq(dailyReports.reportDate, reportDateColombo),
+  });
+  if (existing) return;
+
+  const totals = await sendReportEmail(reportDateColombo, adminEmail);
+
   await db.insert(dailyReports).values({
     reportDate: reportDateColombo,
     totalsJson: totals,
   });
 
   logger.info({ reportDateColombo, adminEmail }, "Daily sales report email sent");
+}
+
+// Manual resend, triggered by an admin from the dashboard — deliberately
+// bypasses the idempotency guard above (the whole point is to resend a
+// report that already went out), then upserts the daily_reports row so the
+// login-triggered idempotency check still reflects the latest send.
+export async function resendDailyReport(reportDateColombo: string, adminEmail: string) {
+  const totals = await sendReportEmail(reportDateColombo, adminEmail);
+
+  await db
+    .insert(dailyReports)
+    .values({ reportDate: reportDateColombo, totalsJson: totals })
+    .onConflictDoUpdate({
+      target: dailyReports.reportDate,
+      set: { totalsJson: totals, sentAt: new Date() },
+    });
+
+  logger.info({ reportDateColombo, adminEmail }, "Daily sales report email resent");
 }

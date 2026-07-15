@@ -8,6 +8,7 @@ export type CartLine = {
   taxRate: number;
   unitType: UnitType;
   qty: number;
+  discount?: Discount;
 };
 
 type CartState = {
@@ -17,6 +18,7 @@ type CartState = {
   updateQty: (productId: string, qty: number) => void;
   removeLine: (productId: string) => void;
   setDiscount: (discount: Discount | undefined) => void;
+  setLineDiscount: (productId: string, discount: Discount | undefined) => void;
   clear: () => void;
 };
 
@@ -61,6 +63,11 @@ export const useCartStore = create<CartState>((set) => ({
     set((state) => ({ lines: state.lines.filter((l) => l.productId !== productId) })),
 
   setDiscount: (discount) => set({ discount }),
+
+  setLineDiscount: (productId, discount) =>
+    set((state) => ({
+      lines: state.lines.map((l) => (l.productId === productId ? { ...l, discount } : l)),
+    })),
 
   clear: () => set({ lines: [], discount: undefined }),
 }));

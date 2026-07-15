@@ -6,13 +6,23 @@ import * as productService from "../services/product.service";
 const searchQuerySchema = z.object({
   q: z.string().trim().min(1).optional(),
   active: z.coerce.boolean().optional(),
+  category: z.string().trim().min(1).optional(),
 });
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
-    const { q, active } = searchQuerySchema.parse(req.query);
-    const products = await productService.listProducts(q, active);
+    const { q, active, category } = searchQuerySchema.parse(req.query);
+    const products = await productService.listProducts(q, active, category);
     res.json({ products });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function categories(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const categories = await productService.listCategories();
+    res.json({ categories });
   } catch (err) {
     next(err);
   }

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { UserPlus, Ban, RotateCcw } from "lucide-react";
+import { UserPlus, Ban, RotateCcw, Unlock } from "lucide-react";
 import type { Role, User } from "@pos/shared";
 import { useAuth } from "../context/AuthContext";
 import { createUser, fetchUsers, updateUser } from "../lib/users";
@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...input }: { id: string; role?: Role; active?: boolean }) =>
+    mutationFn: ({ id, ...input }: { id: string; role?: Role; active?: boolean; locked?: boolean }) =>
       updateUser(id, input),
     onSuccess: (user) => {
       toast.success(`Updated ${user.fullName}`);
@@ -74,6 +74,10 @@ export default function AdminUsersPage() {
 
   function handleToggleActive(user: User) {
     updateMutation.mutate({ id: user.id, active: !user.active });
+  }
+
+  function handleUnlock(user: User) {
+    updateMutation.mutate({ id: user.id, locked: false });
   }
 
   return (
@@ -126,12 +130,24 @@ export default function AdminUsersPage() {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="flex flex-wrap gap-1">
                         <Badge variant={user.active ? "secondary" : "outline"}>
                           {user.active ? "Active" : "Inactive"}
                         </Badge>
+                        {user.locked && <Badge variant="destructive">Locked</Badge>}
                       </TableCell>
                       <TableCell className="text-right">
+                        {user.locked && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            disabled={updateMutation.isPending}
+                            onClick={() => handleUnlock(user)}
+                            title="Unlock account"
+                          >
+                            <Unlock className="size-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"

@@ -41,14 +41,14 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 - [x] 12. API auth middleware (JWT verify + role check) **[MVP]**
 - [x] 13. Route protection + role-based redirect (Admin vs Cashier) **[MVP]**
 - [x] 14. Login rate limiting **[MVP]**
-- [ ] 15. Password reset flow **[+]**
-- [ ] 16. Account lockout after repeated failures **[full]**
+- [x] 15. Password reset flow **[+]**
+- [x] 16. Account lockout after repeated failures **[full]**
 
 ## Phase 3 — Product catalog
 
 - [x] 17. Product list + search (read) **[MVP]**
 - [x] 18. Admin product CRUD, soft-delete/deactivate **[MVP]**
-- [ ] 19. Categories / product grouping **[+]**
+- [x] 19. Categories / product grouping **[+]**
 - [ ] 20. Barcode/SKU field + scan-to-add **[+]**
 - [ ] 21. Product images **[full]**
 - [x] 22. Unit types / weighted items (per kg) **[full]**
@@ -62,9 +62,9 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 - [x] 27. Checkout — persist sale + items in one transaction **[MVP]**
 - [x] 28. Record cashier + Asia/Colombo timestamp **[MVP]**
 - [x] 29. Clear cart + invalidate queries on success **[MVP]**
-- [ ] 30. Per-line-item discount **[+]**
+- [x] 30. Per-line-item discount **[+]**
 - [ ] 31. Hold / resume a sale (park an order) **[full]**
-- [ ] 32. Void / cancel a sale before checkout **[+]**
+- [x] 32. Void / cancel a sale before checkout **[+]**
 
 ## Phase 5 — Payment & receipt
 
@@ -83,7 +83,7 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 - [x] 42. Idempotency guard (no duplicate emails same day) **[MVP]**
 - [x] 43. Non-blocking failure handling + logging **[MVP]**
 - [ ] 44. Scheduled end-of-day cron send **[+]**
-- [ ] 45. Manual "resend today's report" button **[+]**
+- [x] 45. Manual "resend today's report" button **[+]**
 
 ## Phase 7 — Sales history & reporting
 

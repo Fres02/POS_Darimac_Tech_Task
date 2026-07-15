@@ -10,7 +10,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user?: { id: string; role: Role; fullName: string };
+      user?: { id: string; role: Role; fullName: string; email?: string };
     }
   }
 }
@@ -35,7 +35,12 @@ export const requireAuth: RequestHandler = async (req, _res, next) => {
       throw new HttpError(403, "Account is inactive");
     }
 
-    req.user = { id: profile.id, role: profile.role, fullName: profile.fullName };
+    req.user = {
+      id: profile.id,
+      role: profile.role,
+      fullName: profile.fullName,
+      email: data.user.email,
+    };
     next();
   } catch (err) {
     next(err);

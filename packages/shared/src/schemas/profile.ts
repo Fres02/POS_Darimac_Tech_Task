@@ -6,6 +6,7 @@ export const profileSchema = z.object({
   fullName: z.string().min(1),
   role: roleSchema,
   active: z.boolean(),
+  locked: z.boolean(),
 });
 export type Profile = z.infer<typeof profileSchema>;
 
@@ -23,5 +24,6 @@ export type CreateUserInput = z.infer<typeof createUserInputSchema>;
 export const updateUserInputSchema = z.object({
   role: roleSchema.optional(),
   active: z.boolean().optional(),
+  locked: z.boolean().optional(),
 });
 export type UpdateUserInput = z.infer<typeof updateUserInputSchema>;

@@ -37,6 +37,11 @@ export const profiles = pgTable(
     fullName: text("full_name").notNull(),
     role: roleEnum("role").notNull().default("cashier"),
     active: boolean("active").notNull().default(true),
+    // Account lockout: incremented on each failed login, reset on success.
+    // Once `locked` is set (at the 5-attempt threshold) only an admin can
+    // clear it — there is no auto-expiry.
+    failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
+    locked: boolean("locked").notNull().default(false),
   },
   () => [
     pgPolicy("profiles_select_own_or_admin", {
@@ -60,6 +65,7 @@ export const products = pgTable(
     unitType: unitTypeEnum("unit_type").notNull().default("each"),
     active: boolean("active").notNull().default(true),
     stockQty: integer("stock_qty"),
+    category: text("category"),
   },
   () => [
     pgPolicy("products_select_authenticated", {
@@ -127,6 +133,10 @@ export const saleItems = pgTable(
     // numeric, not integer: weighted/volume items (kg, l) can have fractional qty.
     qty: numeric("qty", { precision: 10, scale: 3 }).notNull(),
     lineTotal: numeric("line_total", { precision: 10, scale: 2 }).notNull(),
+    // Resolved dollar amount of this line's own discount (if any), already
+    // applied to reduce its taxable base — lineTotal itself stays the gross,
+    // pre-discount amount so existing revenue aggregates don't need to change.
+    lineDiscount: numeric("line_discount", { precision: 10, scale: 2 }).notNull().default("0"),
   },
   (table) => [
     index("sale_items_sale_id_idx").on(table.saleId),

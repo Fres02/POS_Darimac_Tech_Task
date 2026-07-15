@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { Package, Receipt, Users, ArrowRight, TrendingUp, Wallet } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Package, Receipt, Users, ArrowRight, TrendingUp, Wallet, Mail } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { fetchDashboard } from "@/lib/dashboard";
+import { resendTodayReport } from "@/lib/reports";
 import { formatLkr } from "@/lib/format";
 import { SalesTrendChart } from "@/components/charts/SalesTrendChart";
 import { TopProductsChart } from "@/components/charts/TopProductsChart";
@@ -57,11 +60,26 @@ export default function AdminDashboardPage() {
     queryFn: fetchDashboard,
   });
 
+  const resendMutation = useMutation({
+    mutationFn: resendTodayReport,
+    onSuccess: () => toast.success("Today's sales report was resent to your inbox."),
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {user?.fullName}</h1>
-        <p className="text-muted-foreground">Here's what you can manage today.</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {user?.fullName}</h1>
+          <p className="text-muted-foreground">Here's what you can manage today.</p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => resendMutation.mutate()}
+          disabled={resendMutation.isPending}
+        >
+          <Mail /> {resendMutation.isPending ? "Sending..." : "Resend today's report"}
+        </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

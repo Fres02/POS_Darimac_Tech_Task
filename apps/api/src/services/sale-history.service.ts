@@ -88,6 +88,7 @@ export async function getSaleDetail(saleId: string, user: CurrentUser): Promise<
       unitTypeSnapshot: row.unitTypeSnapshot,
       qty: Number(row.qty),
       lineTotal: Number(row.lineTotal),
+      lineDiscount: Number(row.lineDiscount),
     })),
   };
 }

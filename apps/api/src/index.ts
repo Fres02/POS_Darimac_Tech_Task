@@ -11,6 +11,7 @@ import { productRouter } from "./routes/product.routes";
 import { saleRouter } from "./routes/sale.routes";
 import { userRouter } from "./routes/user.routes";
 import { dashboardRouter } from "./routes/dashboard.routes";
+import { reportRouter } from "./routes/report.routes";
 import { errorHandler } from "./middleware/error-handler";
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/products", productRouter);
 app.use("/api/sales", saleRouter);
 app.use("/api/users", userRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/reports", reportRouter);
 
 app.use(errorHandler);
 

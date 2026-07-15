@@ -3,7 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Search, Pencil, Ban, Plus } from "lucide-react";
 import type { Product, UnitType } from "@pos/shared";
-import { createProduct, deactivateProduct, fetchProducts, updateProduct } from "../lib/products";
+import {
+  createProduct,
+  deactivateProduct,
+  fetchProductCategories,
+  fetchProducts,
+  updateProduct,
+} from "../lib/products";
 import { formatLkr, unitLabel, unitSuffix } from "../lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +39,7 @@ type ProductFormState = {
   taxRate: string;
   unitType: UnitType;
   stockQty: string;
+  category: string;
 };
 
 const EMPTY_FORM: ProductFormState = {
@@ -42,6 +49,7 @@ const EMPTY_FORM: ProductFormState = {
   taxRate: "0",
   unitType: "each",
   stockQty: "",
+  category: "",
 };
 
 function toInput(form: ProductFormState) {
@@ -53,6 +61,7 @@ function toInput(form: ProductFormState) {
     unitType: form.unitType,
     active: true,
     stockQty: form.stockQty.trim() ? Number(form.stockQty) : undefined,
+    category: form.category.trim() || undefined,
   };
 }
 
@@ -82,17 +91,25 @@ function UnitSelect({
 export default function AdminProductsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [createForm, setCreateForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products", search],
-    queryFn: () => fetchProducts(search || undefined),
+    queryKey: ["products", search, categoryFilter],
+    queryFn: () =>
+      fetchProducts(search || undefined, undefined, categoryFilter === "all" ? undefined : categoryFilter),
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["productCategories"],
+    queryFn: fetchProductCategories,
   });
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: ["products"] });
+    queryClient.invalidateQueries({ queryKey: ["productCategories"] });
   }
 
   const createMutation = useMutation({
@@ -139,6 +156,7 @@ export default function AdminProductsPage() {
       taxRate: String(product.taxRate),
       unitType: product.unitType,
       stockQty: product.stockQty !== undefined ? String(product.stockQty) : "",
+      category: product.category ?? "",
     });
   }
 
@@ -157,16 +175,31 @@ export default function AdminProductsPage() {
 
       <Card>
         <CardHeader>
-          <div className="relative max-w-sm">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search by name or SKU"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              autoComplete="off"
-              className="pl-9"
-            />
+          <div className="flex flex-wrap gap-2">
+            <div className="relative max-w-sm flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search by name or SKU"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoComplete="off"
+                className="pl-9"
+              />
+            </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {categories?.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -178,6 +211,7 @@ export default function AdminProductsPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>SKU</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Unit</TableHead>
                   <TableHead>Tax</TableHead>
@@ -190,7 +224,7 @@ export default function AdminProductsPage() {
                 {products?.map((product) =>
                   editingId === product.id ? (
                     <TableRow key={product.id}>
-                      <TableCell colSpan={8}>
+                      <TableCell colSpan={9}>
                         <form
                           onSubmit={handleEditSave}
                           autoComplete="off"
@@ -210,6 +244,14 @@ export default function AdminProductsPage() {
                             placeholder="SKU"
                             autoComplete="off"
                             className="w-28"
+                          />
+                          <Input
+                            value={editForm.category}
+                            onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                            placeholder="Category"
+                            autoComplete="off"
+                            list="category-options"
+                            className="w-32"
                           />
                           <Input
                             type="number"
@@ -263,6 +305,9 @@ export default function AdminProductsPage() {
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell className="text-muted-foreground">{product.sku ?? "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {product.category ?? "—"}
+                      </TableCell>
                       <TableCell>
                         {formatLkr(product.priceLkr)}
                         {unitSuffix(product.unitType)}
@@ -309,7 +354,7 @@ export default function AdminProductsPage() {
           <form
             onSubmit={handleCreate}
             autoComplete="off"
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-7"
           >
             <div className="flex flex-col gap-2">
               <Label>Name</Label>
@@ -326,6 +371,15 @@ export default function AdminProductsPage() {
                 value={createForm.sku}
                 onChange={(e) => setCreateForm({ ...createForm, sku: e.target.value })}
                 autoComplete="off"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>Category (optional)</Label>
+              <Input
+                value={createForm.category}
+                onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}
+                autoComplete="off"
+                list="category-options"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -368,12 +422,16 @@ export default function AdminProductsPage() {
                 autoComplete="off"
               />
             </div>
-            <Button type="submit" disabled={createMutation.isPending} className="sm:col-span-2 lg:col-span-6">
+            <Button type="submit" disabled={createMutation.isPending} className="sm:col-span-2 lg:col-span-7">
               <Plus /> Add product
             </Button>
           </form>
         </CardContent>
       </Card>
+
+      <datalist id="category-options">
+        {categories?.map((category) => <option key={category} value={category} />)}
+      </datalist>
     </div>
   );
 }

@@ -39,13 +39,22 @@ export function Receipt({ sale }: { sale: Sale }) {
         <TableBody>
           {sale.items.map((item) => (
             <TableRow key={item.id}>
-              <TableCell>{item.nameSnapshot}</TableCell>
+              <TableCell>
+                {item.nameSnapshot}
+                {item.lineDiscount > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    -{formatLkr(item.lineDiscount)} discount
+                  </div>
+                )}
+              </TableCell>
               <TableCell className="text-right">{formatQty(item.qty, item.unitTypeSnapshot)}</TableCell>
               <TableCell className="text-right">
                 {formatLkr(item.unitPriceSnapshot)}
                 {unitSuffix(item.unitTypeSnapshot)}
               </TableCell>
-              <TableCell className="text-right">{formatLkr(item.lineTotal)}</TableCell>
+              <TableCell className="text-right">
+                {formatLkr(item.lineTotal - item.lineDiscount)}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

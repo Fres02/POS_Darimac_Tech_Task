@@ -15,6 +15,9 @@ export const saleItemInputSchema = z.object({
   // Whole numbers for "each" products, fractional (e.g. 0.750) for kg/l —
   // enforced server-side once the product's unit type is known.
   qty: z.number().positive(),
+  // Optional per-line markdown, independent of (and applied before) the
+  // sale-level discount below.
+  discount: discountSchema.optional(),
 });
 export type SaleItemInput = z.infer<typeof saleItemInputSchema>;
 
@@ -35,6 +38,7 @@ export const saleItemSchema = z.object({
   unitTypeSnapshot: unitTypeSchema,
   qty: z.number().positive(),
   lineTotal: moneySchema,
+  lineDiscount: moneySchema,
 });
 export type SaleItem = z.infer<typeof saleItemSchema>;
 

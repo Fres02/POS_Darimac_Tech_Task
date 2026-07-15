@@ -43,6 +43,13 @@
       "when": 1784118218233,
       "tag": "0005_add-unit-type-snapshot",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784135376353,
+      "tag": "0006_abandoned_the_captain",
+      "breakpoints": true
     }
   ]
 }

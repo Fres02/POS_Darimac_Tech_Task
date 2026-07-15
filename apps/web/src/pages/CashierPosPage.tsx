@@ -1,10 +1,10 @@
 import { useState, type KeyboardEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2, ShoppingCart, PackageSearch, Search } from "lucide-react";
+import { Trash2, ShoppingCart, PackageSearch, Search, XCircle } from "lucide-react";
 import { computeSaleTotals, type Discount, type Sale } from "@pos/shared";
 import { useCartStore } from "../store/cart";
-import { fetchProducts } from "../lib/products";
+import { fetchProductCategories, fetchProducts } from "../lib/products";
 import { checkout } from "../lib/sales";
 import { formatLkr, formatQty, unitSuffix } from "../lib/format";
 import { Receipt } from "../components/Receipt";
@@ -28,23 +28,98 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type DiscountType = "none" | "amount" | "percent";
 
+function LineDiscountControl({
+  discount,
+  onChange,
+}: {
+  discount: Discount | undefined;
+  onChange: (discount: Discount | undefined) => void;
+}) {
+  const type = discount?.type ?? "none";
+  const value = discount?.value ?? 0;
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Select
+        value={type}
+        onValueChange={(v) => {
+          if (v === "none") {
+            onChange(undefined);
+            return;
+          }
+          onChange({ type: v as "amount" | "percent", value } as Discount);
+        }}
+      >
+        <SelectTrigger className="h-7 w-16 text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">None</SelectItem>
+          <SelectItem value="amount">LKR</SelectItem>
+          <SelectItem value="percent">%</SelectItem>
+        </SelectContent>
+      </Select>
+      {type !== "none" && (
+        <Input
+          type="number"
+          min={0}
+          value={value}
+          autoComplete="off"
+          className="h-7 w-16 text-xs"
+          onChange={(e) => {
+            const numeric = Number(e.target.value);
+            if (Number.isNaN(numeric)) return;
+            onChange({ type, value: numeric } as Discount);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function CashierPosPage() {
   const queryClient = useQueryClient();
-  const { lines, discount, addProduct, updateQty, removeLine, setDiscount, clear } =
-    useCartStore();
+  const {
+    lines,
+    discount,
+    addProduct,
+    updateQty,
+    removeLine,
+    setDiscount,
+    setLineDiscount,
+    clear,
+  } = useCartStore();
 
   const [discountType, setDiscountType] = useState<DiscountType>("none");
   const [discountValue, setDiscountValue] = useState("0");
   const [cashTendered, setCashTendered] = useState("");
   const [lastSale, setLastSale] = useState<Sale | null>(null);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products", "pos", search],
-    queryFn: () => fetchProducts(search || undefined, true),
+    queryKey: ["products", "pos", search, categoryFilter],
+    queryFn: () =>
+      fetchProducts(search || undefined, true, categoryFilter === "all" ? undefined : categoryFilter),
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["productCategories"],
+    queryFn: fetchProductCategories,
   });
 
   const checkoutMutation = useMutation({
@@ -74,7 +149,12 @@ export default function CashierPosPage() {
   }
 
   const totals = computeSaleTotals(
-    lines.map((l) => ({ unitPriceSnapshot: l.unitPrice, qty: l.qty, taxRate: l.taxRate })),
+    lines.map((l) => ({
+      unitPriceSnapshot: l.unitPrice,
+      qty: l.qty,
+      taxRate: l.taxRate,
+      discount: l.discount,
+    })),
     discount,
   );
 
@@ -96,34 +176,57 @@ export default function CashierPosPage() {
   function handleCheckout() {
     setLastSale(null);
     checkoutMutation.mutate({
-      items: lines.map((l) => ({ productId: l.productId, qty: l.qty })),
+      items: lines.map((l) => ({ productId: l.productId, qty: l.qty, discount: l.discount })),
       discount,
       paymentMethod: "cash",
       cashTendered: cashTenderedNumber,
     });
   }
 
+  function handleCancelSale() {
+    clear();
+    setDiscountType("none");
+    setDiscountValue("0");
+    setCashTendered("");
+    toast.info("Sale cancelled");
+  }
+
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <Card className="lg:col-span-2">
+    <div className="grid gap-6 lg:grid-cols-5">
+      <Card className="lg:col-span-3">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <PackageSearch className="size-5" /> Products
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="relative max-w-sm">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search by name or code..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              autoComplete="off"
-              className="pl-9"
-              autoFocus
-            />
+          <div className="flex flex-wrap gap-2">
+            <div className="relative max-w-sm flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search by name or code..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                autoComplete="off"
+                className="pl-9"
+                autoFocus
+              />
+            </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {categories?.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {isLoading ? (
@@ -153,7 +256,7 @@ export default function CashierPosPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="min-w-0 lg:col-span-2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShoppingCart className="size-5" /> Cart
@@ -168,46 +271,61 @@ export default function CashierPosPage() {
                 <TableRow>
                   <TableHead>Item</TableHead>
                   <TableHead>Qty</TableHead>
+                  <TableHead>Discount</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {lines.map((line) => (
-                  <TableRow key={line.productId}>
-                    <TableCell>
-                      <div className="font-medium">{line.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatLkr(line.unitPrice)}
-                        {unitSuffix(line.unitType)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min={line.unitType === "each" ? 1 : 0.001}
-                        step={line.unitType === "each" ? 1 : 0.001}
-                        value={line.qty}
-                        onChange={(e) => updateQty(line.productId, Number(e.target.value))}
-                        autoComplete="off"
-                        className="w-20"
-                      />
-                      {line.unitType !== "each" && (
+                {lines.map((line, index) => {
+                  const lineTotals = totals.lines[index];
+                  return (
+                    <TableRow key={line.productId}>
+                      <TableCell>
+                        <div className="font-medium">{line.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {formatQty(line.qty, line.unitType)}
+                          {formatLkr(line.unitPrice)}
+                          {unitSuffix(line.unitType)}
                         </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatLkr(line.unitPrice * line.qty)}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => removeLine(line.productId)}>
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          min={line.unitType === "each" ? 1 : 0.001}
+                          step={line.unitType === "each" ? 1 : 0.001}
+                          value={line.qty}
+                          onChange={(e) => updateQty(line.productId, Number(e.target.value))}
+                          autoComplete="off"
+                          className="w-16"
+                        />
+                        {line.unitType !== "each" && (
+                          <div className="text-xs text-muted-foreground">
+                            {formatQty(line.qty, line.unitType)}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <LineDiscountControl
+                          discount={line.discount}
+                          onChange={(d) => setLineDiscount(line.productId, d)}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {lineTotals.lineDiscount > 0 && (
+                          <div className="text-xs text-muted-foreground line-through">
+                            {formatLkr(lineTotals.gross)}
+                          </div>
+                        )}
+                        {formatLkr(lineTotals.net)}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => removeLine(line.productId)}>
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
@@ -294,18 +412,45 @@ export default function CashierPosPage() {
             <span className="font-medium">{formatLkr(changeDue)}</span>
           </div>
 
-          <Button
-            size="lg"
-            onClick={handleCheckout}
-            disabled={lines.length === 0 || !hasSufficientCash || checkoutMutation.isPending}
-          >
-            {checkoutMutation.isPending ? "Processing..." : "Checkout"}
-          </Button>
+          <div className="flex gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  disabled={lines.length === 0 || checkoutMutation.isPending}
+                >
+                  <XCircle /> Cancel sale
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancel this sale?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This clears the cart and any discounts. It cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep cart</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleCancelSale}>Cancel sale</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <Button
+              size="lg"
+              className="flex-1"
+              onClick={handleCheckout}
+              disabled={lines.length === 0 || !hasSufficientCash || checkoutMutation.isPending}
+            >
+              {checkoutMutation.isPending ? "Processing..." : "Checkout"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
       {lastSale && (
-        <Card className="lg:col-span-3">
+        <Card className="lg:col-span-5">
           <CardContent className="pt-6">
             <Receipt sale={lastSale} />
           </CardContent>
