@@ -16,6 +16,11 @@ import { errorHandler } from "./middleware/error-handler";
 
 const app = express();
 
+// Render (and most PaaS hosts) sit behind a reverse proxy — without this,
+// req.ip resolves to the proxy's own address for every request, collapsing
+// express-rate-limit's per-IP buckets into one shared bucket for all users.
+app.set("trust proxy", 1);
+
 app.use(cors({ origin: env.WEB_ORIGIN }));
 app.use(express.json());
 app.use(pinoHttp({ logger }));
