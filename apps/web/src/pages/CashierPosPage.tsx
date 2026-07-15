@@ -120,6 +120,7 @@ export default function CashierPosPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleSearchKeyDown}
+              autoComplete="off"
               className="pl-9"
               autoFocus
             />
@@ -185,6 +186,7 @@ export default function CashierPosPage() {
                         min={1}
                         value={line.qty}
                         onChange={(e) => updateQty(line.productId, Number(e.target.value))}
+                        autoComplete="off"
                         className="w-16"
                       />
                     </TableCell>
@@ -226,6 +228,7 @@ export default function CashierPosPage() {
                   min={0}
                   value={discountValue}
                   onChange={(e) => applyDiscount(discountType, e.target.value)}
+                  autoComplete="off"
                 />
               )}
             </div>
@@ -274,6 +277,7 @@ export default function CashierPosPage() {
               step="0.01"
               value={cashTendered}
               onChange={(e) => setCashTendered(e.target.value)}
+              autoComplete="off"
             />
           </div>
 

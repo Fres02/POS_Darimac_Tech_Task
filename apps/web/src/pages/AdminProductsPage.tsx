@@ -124,6 +124,7 @@ export default function AdminProductsPage() {
               placeholder="Search by name or SKU"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              autoComplete="off"
               className="pl-9"
             />
           </div>
@@ -149,11 +150,16 @@ export default function AdminProductsPage() {
                   editingId === product.id ? (
                     <TableRow key={product.id}>
                       <TableCell colSpan={7}>
-                        <form onSubmit={handleEditSave} className="flex flex-wrap items-end gap-2 py-1">
+                        <form
+                          onSubmit={handleEditSave}
+                          autoComplete="off"
+                          className="flex flex-wrap items-end gap-2 py-1"
+                        >
                           <Input
                             value={editForm.name}
                             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                             placeholder="Name"
+                            autoComplete="off"
                             className="w-40"
                             required
                           />
@@ -161,6 +167,7 @@ export default function AdminProductsPage() {
                             value={editForm.sku}
                             onChange={(e) => setEditForm({ ...editForm, sku: e.target.value })}
                             placeholder="SKU"
+                            autoComplete="off"
                             className="w-28"
                           />
                           <Input
@@ -169,6 +176,7 @@ export default function AdminProductsPage() {
                             value={editForm.priceLkr}
                             onChange={(e) => setEditForm({ ...editForm, priceLkr: e.target.value })}
                             placeholder="Price"
+                            autoComplete="off"
                             className="w-24"
                             required
                           />
@@ -180,6 +188,7 @@ export default function AdminProductsPage() {
                             value={editForm.taxRate}
                             onChange={(e) => setEditForm({ ...editForm, taxRate: e.target.value })}
                             placeholder="Tax"
+                            autoComplete="off"
                             className="w-20"
                             required
                           />
@@ -188,6 +197,7 @@ export default function AdminProductsPage() {
                             value={editForm.stockQty}
                             onChange={(e) => setEditForm({ ...editForm, stockQty: e.target.value })}
                             placeholder="Stock"
+                            autoComplete="off"
                             className="w-20"
                           />
                           <Button type="submit" size="sm" disabled={updateMutation.isPending}>
@@ -245,12 +255,17 @@ export default function AdminProductsPage() {
           <CardTitle>Add product</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleCreate} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <form
+            onSubmit={handleCreate}
+            autoComplete="off"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
+          >
             <div className="flex flex-col gap-2">
               <Label>Name</Label>
               <Input
                 value={createForm.name}
                 onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                autoComplete="off"
                 required
               />
             </div>
@@ -259,6 +274,7 @@ export default function AdminProductsPage() {
               <Input
                 value={createForm.sku}
                 onChange={(e) => setCreateForm({ ...createForm, sku: e.target.value })}
+                autoComplete="off"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -268,6 +284,7 @@ export default function AdminProductsPage() {
                 step="0.01"
                 value={createForm.priceLkr}
                 onChange={(e) => setCreateForm({ ...createForm, priceLkr: e.target.value })}
+                autoComplete="off"
                 required
               />
             </div>
@@ -280,6 +297,7 @@ export default function AdminProductsPage() {
                 max="1"
                 value={createForm.taxRate}
                 onChange={(e) => setCreateForm({ ...createForm, taxRate: e.target.value })}
+                autoComplete="off"
                 required
               />
             </div>
@@ -289,6 +307,7 @@ export default function AdminProductsPage() {
                 type="number"
                 value={createForm.stockQty}
                 onChange={(e) => setCreateForm({ ...createForm, stockQty: e.target.value })}
+                autoComplete="off"
               />
             </div>
             <Button type="submit" disabled={createMutation.isPending} className="sm:col-span-2 lg:col-span-5">

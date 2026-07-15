@@ -19,3 +19,9 @@ export const createUserInputSchema = z.object({
   role: roleSchema,
 });
 export type CreateUserInput = z.infer<typeof createUserInputSchema>;
+
+export const updateUserInputSchema = z.object({
+  role: roleSchema.optional(),
+  active: z.boolean().optional(),
+});
+export type UpdateUserInput = z.infer<typeof updateUserInputSchema>;
