@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @pos/api run typecheck
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm --filter @pos/api run typecheck
     startCommand: pnpm --filter @pos/api start
     healthCheckPath: /health
     envVars:
