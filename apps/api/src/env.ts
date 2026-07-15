@@ -9,6 +9,8 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
   WEB_ORIGIN: z.string().url().default("http://localhost:5173"),
+  RESEND_API_KEY: z.string().min(1),
+  RESEND_FROM_EMAIL: z.string().email(),
 });
 
 export const env = envSchema.parse(process.env);

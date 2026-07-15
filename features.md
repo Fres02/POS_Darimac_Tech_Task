@@ -77,11 +77,11 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 ## Phase 6 — Daily sales report email
 
-- [ ] 39. Daily aggregation query (Asia/Colombo boundaries) **[MVP]**
-- [ ] 40. React Email template for the report **[MVP]**
-- [ ] 41. Send via Resend on Admin login **[MVP]**
-- [ ] 42. Idempotency guard (no duplicate emails same day) **[MVP]**
-- [ ] 43. Non-blocking failure handling + logging **[MVP]**
+- [x] 39. Daily aggregation query (Asia/Colombo boundaries) **[MVP]**
+- [x] 40. React Email template for the report **[MVP]**
+- [x] 41. Send via Resend on Admin login **[MVP]**
+- [x] 42. Idempotency guard (no duplicate emails same day) **[MVP]**
+- [x] 43. Non-blocking failure handling + logging **[MVP]**
 - [ ] 44. Scheduled end-of-day cron send **[+]**
 - [ ] 45. Manual "resend today's report" button **[+]**
 

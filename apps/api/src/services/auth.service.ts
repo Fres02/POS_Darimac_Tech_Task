@@ -3,6 +3,9 @@ import { supabaseAnon } from "../lib/supabase";
 import { HttpError } from "../lib/http-error";
 import { db } from "../db/client";
 import { profiles } from "../db/schema";
+import { getColomboDateString } from "../lib/colombo-time";
+import { ensureDailyReportSent } from "./report.service";
+import { logger } from "../logger";
 
 export async function loginWithPassword(email: string, password: string) {
   const { data, error } = await supabaseAnon.auth.signInWithPassword({ email, password });
@@ -17,6 +20,13 @@ export async function loginWithPassword(email: string, password: string) {
 
   if (!profile || !profile.active) {
     throw new HttpError(403, "Account is inactive");
+  }
+
+  if (profile.role === "admin" && data.user.email) {
+    const reportDate = getColomboDateString(new Date());
+    ensureDailyReportSent(reportDate, data.user.email).catch((err) => {
+      logger.error({ err }, "Failed to send daily sales report email");
+    });
   }
 
   return {
