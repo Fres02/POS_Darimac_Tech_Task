@@ -179,7 +179,7 @@ export default function AdminUsersPage() {
           <form
             onSubmit={handleCreate}
             autoComplete="off"
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
           >
             <div className="flex flex-col gap-2">
               <Label>Full name</Label>
@@ -229,7 +229,7 @@ export default function AdminUsersPage() {
             <Button
               type="submit"
               disabled={createMutation.isPending}
-              className="sm:col-span-2 lg:col-span-5"
+              className="sm:col-span-2 lg:col-span-4"
             >
               <UserPlus /> Add user
             </Button>
