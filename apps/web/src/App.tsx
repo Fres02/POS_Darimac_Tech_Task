@@ -5,6 +5,8 @@ import LoginPage from "./pages/LoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import AdminProductsPage from "./pages/AdminProductsPage";
 import CashierPosPage from "./pages/CashierPosPage";
+import SalesHistoryPage from "./pages/SalesHistoryPage";
+import SaleDetailPage from "./pages/SaleDetailPage";
 
 function RootRedirect() {
   const { user, loading } = useAuth();
@@ -26,6 +28,11 @@ export default function App() {
 
       <Route element={<ProtectedRoute allowedRoles={["cashier"]} />}>
         <Route path="/pos" element={<CashierPosPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={["admin", "cashier"]} />}>
+        <Route path="/sales" element={<SalesHistoryPage />} />
+        <Route path="/sales/:id" element={<SaleDetailPage />} />
       </Route>
 
       <Route path="/" element={<RootRedirect />} />

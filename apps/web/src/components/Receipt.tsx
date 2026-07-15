@@ -1,13 +1,13 @@
 import type { Sale } from "@pos/shared";
 import { formatColomboDateTime, formatLkr } from "../lib/format";
 
-export function Receipt({ sale, cashierName }: { sale: Sale; cashierName: string }) {
+export function Receipt({ sale }: { sale: Sale }) {
   return (
     <div id="receipt">
       <h2>Receipt</h2>
       <p>Sale #{sale.id}</p>
       <p>{formatColomboDateTime(sale.createdAt)}</p>
-      <p>Cashier: {cashierName}</p>
+      <p>Cashier: {sale.cashierName}</p>
 
       <table>
         <thead>

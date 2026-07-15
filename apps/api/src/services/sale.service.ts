@@ -4,7 +4,11 @@ import { HttpError } from "../lib/http-error";
 import { db } from "../db/client";
 import { products, sales, saleItems } from "../db/schema";
 
-export async function createSale(cashierId: string, input: CreateSaleInput): Promise<Sale> {
+export async function createSale(
+  cashierId: string,
+  cashierName: string,
+  input: CreateSaleInput,
+): Promise<Sale> {
   return db.transaction(async (tx) => {
     const productIds = input.items.map((item) => item.productId);
     const productRows = await tx.select().from(products).where(inArray(products.id, productIds));
@@ -64,6 +68,7 @@ export async function createSale(cashierId: string, input: CreateSaleInput): Pro
     return {
       id: saleRow.id,
       cashierId: saleRow.cashierId,
+      cashierName,
       subtotal: Number(saleRow.subtotal),
       tax: Number(saleRow.tax),
       discount: Number(saleRow.discount),

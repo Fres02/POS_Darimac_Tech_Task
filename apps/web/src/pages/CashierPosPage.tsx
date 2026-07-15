@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { computeSaleTotals, type Discount, type Sale } from "@pos/shared";
 import { useAuth } from "../context/AuthContext";
@@ -76,7 +77,8 @@ export default function CashierPosPage() {
     <main>
       <h1>POS</h1>
       <p>
-        Welcome, {user?.fullName}. <button onClick={logout}>Log out</button>
+        Welcome, {user?.fullName}. <Link to="/sales">My sales</Link>{" "}
+        <button onClick={logout}>Log out</button>
       </p>
 
       <section>
@@ -197,7 +199,7 @@ export default function CashierPosPage() {
         </button>
       </section>
 
-      {lastSale && <Receipt sale={lastSale} cashierName={user?.fullName ?? ""} />}
+      {lastSale && <Receipt sale={lastSale} />}
     </main>
   );
 }

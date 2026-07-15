@@ -87,9 +87,9 @@ phase before starting the next**. A working Phase 5 beats a broken Phase 9.
 
 ## Phase 7 — Sales history & reporting
 
-- [ ] 46. Cashier: view own sales **[MVP]**
-- [ ] 47. Admin: view all sales **[MVP]**
-- [ ] 48. Sale detail view **[MVP]**
+- [x] 46. Cashier: view own sales **[MVP]**
+- [x] 47. Admin: view all sales **[MVP]**
+- [x] 48. Sale detail view **[MVP]**
 - [ ] 49. Date-range filtering **[+]**
 - [ ] 50. Admin dashboard: today's revenue, txn count, avg basket **[+]**
 - [ ] 51. Charts: sales over time, top products **[+]**

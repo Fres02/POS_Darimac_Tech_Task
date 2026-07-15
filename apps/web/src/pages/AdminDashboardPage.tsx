@@ -11,6 +11,9 @@ export default function AdminDashboardPage() {
       <p>
         <Link to="/admin/products">Manage products</Link>
       </p>
+      <p>
+        <Link to="/sales">View all sales</Link>
+      </p>
       <button onClick={logout}>Log out</button>
     </main>
   );

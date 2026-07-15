@@ -38,6 +38,7 @@ export type SaleItem = z.infer<typeof saleItemSchema>;
 export const saleSchema = z.object({
   id: z.string().uuid(),
   cashierId: z.string().uuid(),
+  cashierName: z.string(),
   subtotal: moneySchema,
   tax: moneySchema,
   discount: moneySchema,
@@ -49,3 +50,6 @@ export const saleSchema = z.object({
   items: z.array(saleItemSchema),
 });
 export type Sale = z.infer<typeof saleSchema>;
+
+export const saleSummarySchema = saleSchema.omit({ items: true });
+export type SaleSummary = z.infer<typeof saleSummarySchema>;
